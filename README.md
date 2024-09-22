@@ -284,10 +284,461 @@ $ python hello.py
 
 </details>
 
-
 ## 3. 基本的な文法
+以下の問題からは、作業ディレクトリ内に新しいディレクトリ`src`を作成し、その中に新しくpythonファイルを作成して実行する。pythonファイルの名前は問10の場合は`task_10.py`のようにする。
+
+実行する際には、
+```bash
+$ python ./src/task_10.py
+```
+のように実行する。
+
+### 問10
+ターミナル上に自分の名前を表示させよ。
+
+<details><summary>解説</summary>
+
+`print()` 関数はPythonでターミナルやコンソールに出力するために使用する標準的な関数である。表示したい内容をシングルクォーテーション `' '` またはダブルクォーテーション `" "` で囲んで使う。シングルクォーテーションとダブルクォーテーションはどちらも文字列を囲むために使うが、文字列内でシングルクォーテーションやダブルクォーテーションを使いたい場合にはそれぞれの適切な形式を選択する。
+
+#### 例：
+```python
+print("山田 太郎")
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+pythonファイルに `print("名前")` を入力して実行し、自分の名前を表示させる。
+
+</details>
+
+### 問11
+以下のソースコードの最後に自分の学籍番号をコメントとして記入せよ。
+
+```python
+print("hello world")
+```
+
+<details><summary>解説</summary>
+
+Pythonでは、`#` を用いてコードの一部をコメントにすることができる。コメントはプログラムの説明やメモとして役立つが、実行されることはない。複数行のコメントを書くときは、各行の先頭に `#` を追加する。コメントはコードの理解を助けるために用いる。VS Codeでは`Ctrl` + `/`で選択部分をコメントアウトすることができる。
+
+#### 例：
+```python
+# これはコメントです
+# 学籍番号: 12345678
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+`hello world`のみが表示され、学籍番号は表示されない。
+
+</details>
+
+### 問12
+`i'm [自分の名前]` を表示させよ。
+
+<details><summary>解説</summary>
+
+シングルクォーテーションとダブルクォーテーションは、どちらも文字列を囲むために使われるが、文字列内でシングルクォーテーション（例えば、`i'm` など）を使う場合は、ダブルクォーテーションで囲むとエラーを避けることができる。逆に、ダブルクォーテーションを文字列内で使いたい場合は、シングルクォーテーションで囲む。
+
+#### 例：
+```python
+print("i'm 名前")
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+ターミナルに `print("i'm 名前")` を入力して、自分の名前を表示させる。
+
+</details>
 
 ## 4. 変数とデータ型、演算子
+
+### 問13
+変数 `hello` に `hello python` を代入し、print文で表示させよ。
+
+<details><summary>解説</summary>
+
+Pythonでは変数の宣言は必要なく、値を直接代入することで変数が定義される。文字列を代入する場合はシングルクォーテーションまたはダブルクォーテーションで囲む。
+
+#### 例：
+```python
+hello = "hello python"
+print(hello)
+```
+
+変数 `hello` に文字列 `hello python` が代入され、`print()` 関数でその内容が表示される。
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+hello = "hello python"
+print(hello)
+```
+
+結果:
+```
+hello python
+```
+
+</details>
+
+### 問14
+変数 `self_introduction` に名前と年齢を改行を含めて表示せよ。
+
+<details><summary>解説</summary>
+
+複数行にわたる文字列を扱う場合、Pythonでは `'''` または `"""` で囲むことで、文字列を改行付きでそのまま書くことができる。また、`\n` を使って改行コードを指定することもできる。
+
+#### 例：
+```python
+self_introduction = '''名前: 太郎
+年齢: 20'''
+print(self_introduction)
+```
+
+または
+
+```python
+self_introduction = "名前: 太郎\n年齢: 20"
+print(self_introduction)
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+self_introduction = '''名前: 太郎
+年齢: 20'''
+print(self_introduction)
+```
+
+結果:
+```
+名前: 太郎
+年齢: 20
+```
+
+</details>
+
+### 問15
+変数 `name` に自分の名前を代入し、print文で `Hello [名前]!` を表示させよ。
+
+<details><summary>解説</summary>
+
+Pythonでは `+` 演算子を使って文字列を連結できる。さらに、`f-string` を使用すると、変数を簡単に文字列内に埋め込むことができる。
+
+#### 例：連結
+```python
+name = "太郎"
+print("Hello " + name + "!")
+```
+
+#### 例：f-string
+```python
+name = "太郎"
+print(f"Hello {name}!")
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+name = "太郎"
+print(f"Hello {name}!")
+```
+
+結果:
+```
+Hello 太郎!
+```
+
+</details>
+
+### 問16
+変数 `name` に `python` と代入し、print文で `Hello python!` を表示させ、その後 `name` に自分の名前を再代入し、print文で `Hello [自分の名前]!` を表示させよ。
+
+<details><summary>解説</summary>
+
+Pythonでは、変数に再度値を代入することが可能である。初回に `python` を代入し、次に再代入して異なる値を持たせることができる。
+
+#### 例：
+```python
+name = "python"
+print(name)
+
+name = "太郎"
+print(name)
+```
+
+結果:
+```
+python
+太郎
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+name = "python"
+print(f"Hello {name}!")
+
+name = "太郎"
+print(f"Hello {name}!")
+```
+
+結果:
+```
+Hello python!
+Hello 太郎!
+```
+
+</details>
+
+### 問17
+定数 `LANGUAGE_NAME` に `python` を代入し、表示させよ。
+
+<details><summary>解説</summary>
+
+Pythonには定数の概念が厳密には存在しないが、全て大文字で変数名を記述することで、開発者間で「この変数は変更しない」という慣例を示す。
+
+#### 例：
+```python
+LANGUAGE_NAME = "python"
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+LANGUAGE_NAME = "python"
+print(LANGUAGE_NAME)
+```
+
+結果:
+```
+python
+```
+
+</details>
+
+### 問18
+`1 + 1` を計算し、表示せよ。
+
+<details><summary>解説</summary>
+
+Pythonは簡単な四則演算をサポートしている。`+` 演算子を使用して加算を行い、その結果を `print()` で表示する。
+
+#### 例：
+```python
+print(1 + 1)
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+print(1 + 1)
+```
+
+結果:
+```
+2
+```
+
+</details>
+
+### 問19
+変数 `name` に文字列として自分の名前を、変数 `age` に整数型として自分の年齢を代入し、それぞれprint文で表示せよ。その後、`age` に1を足して再表示せよ。(数値と文字列の型)
+
+<details><summary>解説</summary>
+
+Pythonでは文字列と数値は別の型として扱われる。数値に対しては計算ができるが、文字列に対しては直接計算できない。数値に対して `+1` を行うことで年齢を更新できる。
+
+#### 例：
+```python
+name = "太郎"
+age = 20
+print(name)
+print(age)
+
+age += 1
+print(age)
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+name = "太郎"
+age = 20
+print(name)
+print(age)
+
+age += 1
+print(age)
+```
+
+結果:
+```
+太郎
+20
+21
+```
+
+</details>
+
+### 問20
+5の2乗(`5^2`) を計算し、変数 `result` に代入して表示する。その後、`3.14` を掛けて表示せよ。
+
+<details><summary>解説</summary>
+
+Pythonでは `^` はビット単位の排他的論理和 (XOR) 演算子であり、累乗を表す演算子は `**` である。
+
+#### 例：
+```python
+result = 5 ** 2
+print(result) # 25
+```
+
+5の2乗の計算後、`*` 演算子を使用して `3.14` を掛ける。
+
+`result = result * 3.14`という形をとることで、`result`に`result`を3.14倍した数値を代入することがでる。省略して`result *= 3.14`とも書ける。
+
+
+#### 例：
+```python
+result = result * 3.14
+print(result) # 78.5
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+result = 5 ** 2
+print(result)
+
+result *= 3.14
+print(result)
+```
+
+結果:
+```
+25
+78.5
+```
+
+</details>
+
+### 問21
+100を13で割ったときの商と余りを表示せよ。
+
+<details><summary>解説</summary>
+
+Pythonでは `//` 演算子で商を求め、`%` 演算子で余りを求めることができる。商と余りを同時に求めて表示する。
+
+#### 例：
+```python
+print(100 // 13)
+print(100 % 13)
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+print(100 // 13)
+print(100 % 13)
+```
+
+結果:
+```
+7
+9
+```
+
+</details>
+
+### 問22
+変数 `boolean` に `True` を代入して、表示させよ。その後、`False` を代入し、表示させよ。
+
+<details><summary>解説</summary>
+
+Pythonでは `True` と `False` はそれぞれ論理値 (bool型) を表す。変数にこれらを代入して表示することができる。
+
+#### 例：
+```python
+boolean = True
+print(boolean)
+
+boolean = False
+print(boolean)
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+boolean = True
+print(boolean)
+
+boolean = False
+print(boolean)
+```
+
+結果:
+```
+True
+False
+```
+
+</details>
+
+### 問23
+`2^10` と `10^2` の大きさの比較結果を表示せよ。(比較演算子を使い、bool型の結果をprintする)
+
+<details><summary>解説</summary>
+
+Pythonでは累乗を計算するために `**` を使用する。`>` や `<` などの比較演算子を使用して、大小を比較し、その結果を `print()` で表示できる。
+
+#### 例：
+```python
+print(2**10 > 10**2)
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+print(2**10 > 10**2)
+```
+
+結果:
+```
+True
+```
+
+</details>
 
 ## 5. 制御文(条件分岐、繰り返し)
 
