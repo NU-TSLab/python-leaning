@@ -110,6 +110,176 @@ Pythonは以下の環境で動作する。
 
 ## 2. 環境構築
 
+### 問4
+Pythonをインストールせよ
+
+<details><summary>解説</summary>
+
+[ここ](https://www.python.org/downloads/)からPythonのインストーラーをダウンロードする。</br>
+インストーラーの指示に従い、インストールを進める。</br>
+※途中、`Add Python to environment variables`に必ずチェックを入れる。
+
+余裕のある人は、AnacondaやPyenv、Pipenv、Poetry、Ryeなどのパッケージ管理・バージョン管理システムについて調べてインストールするのがおすすめ。科学者には、Anacondaが広く使われており、個人的にはRyeがおすすめ。
+
+</details>
+
+<details><summary>正解</summary>
+
+PythonがPCに正しくインストールされた。
+
+</details>
+
+### 問5
+インストールしたPythonのバージョンはいくつか？ターミナルに表示させよ。
+
+<details><summary>解説</summary>
+
+### Windowsの場合
+
+1. スタートボタン をクリックして、検索バーに「cmd」または「PowerShell」と入力しターミナルを開く。
+2. ターミナルが表示されたら、`python --version`と入力し、エンターキーを押す。
+
+### Mac OSの場合
+
+1. Finderで「アプリケーション」フォルダを開き、「ユーティリティ」フォルダに移動する。
+2. そこに「ターミナル」というアプリがあるので、それをダブルクリックして開く。
+3. ターミナルが表示されたら、`python --version`と入力し、エンターキーを押す。
+
+
+### 正しく表示されない場合
+
+インストール手順が間違っている可能性があるので、もう一度見直す。
+
+</details>
+
+<details><summary>正解</summary>
+
+以下のように表示される。
+```bash
+$ python --version
+Python [使用しているバージョン]
+```
+
+</details>
+
+### 問6
+テキストエディタを列挙せよ。
+
+<details><summary>解説</summary>
+
+テキストエディタとはテキストファイルを編集するツール。このツールを用いてプログラムを作成する。</br>
+似ているツールにVisual StudioやEclipsが挙げられるが、これはIDE(エディタと実行環境、デバッガなどの便利機能を合わせたもの。エディタより動作が重い。)といわれるものである。</br>
+現在、広く使われているVS codeはIDEに拡張可能であるが、非常に軽量である。
+
+</details>
+
+<details><summary>正解</summary>
+
+Windows メモ帳、Mac テキストエディット、VS Code、Vim、Emacs、Nano、Atom、Sublime Text、TeraPad、秀丸、サクラエディタ、etc...
+
+</details>
+
+### 問7
+VS Codeをインストールして、起動せよ。
+
+<details><summary>解説</summary>
+
+Visual Studio Code (VS Code) は、Microsoftが提供している軽量なコードエディタで、多くのプログラミング言語や開発ツールに対応している。
+
+#### インストール手順：
+
+1. [公式サイト](https://code.visualstudio.com/) にアクセスし、使用しているOSに合ったVS Codeのインストーラをダウンロードする。
+2. ダウンロードしたインストーラを起動し、インストールを進める。
+3. インストール時に「PATHに追加する」にチェックを入れることをおすすめ。
+4. インストールが完了したら、VS Codeを起動する。
+
+#### 初期設定（Python環境の場合）：
+
+1. VS Codeの「拡張機能」アイコンをクリックし、`Japanese`拡張機能を検索してインストールする。
+2. VS Codeの「拡張機能」アイコンをクリックし、`Python`拡張機能を検索してインストールする。
+3. 一度VS Codeを再起動して、拡張機能を有効化させる。
+
+これでPythonの開発環境が整う。
+
+</details>
+
+<details><summary>正解</summary>
+
+VS Codeが正しくインストールされ、起動する。
+
+</details>
+
+### 問8
+作業用のフォルダを作成し、VS Codeで開き、VS Code上からhello.pyというファイルを作成せよ。
+
+<details><summary>解説</summary>
+
+Pythonの開発を始める際には、プロジェクトごとに作業フォルダを作成し、そのフォルダ内でファイルを管理するのが一般的である。
+
+#### 作業フォルダを作成する手順：
+
+1. **Windowsの場合**：エクスプローラを開き、任意の場所（例: デスクトップ）で右クリックし、「新規作成」→「フォルダ」を選択してフォルダを作成する。名前を `python_leaning` などに設定する。
+   
+   **Mac OSの場合**：Finderを開き、任意の場所で「右クリック」→「新規フォルダ」を選択してフォルダを作成し、名前を `python_leaning` などに設定する。
+
+2. 作成したフォルダを **VS Code** で開くには、VS Codeを起動し、「ファイル」→「フォルダーを開く」から作成したフォルダを選択する。
+
+#### hello.pyファイルを作成する手順：
+
+1. フォルダを開いた状態で、VS Codeの「エクスプローラー」サイドバーに移動し、「新しいファイル」アイコンをクリックして `hello.py` というファイルを作成する。
+2. hello.py 内に以下のコードを入力して`ctrl` + `s`で保存する。
+
+```python
+print("Hello, World!")
+```
+
+これでファイルが作成され、Pythonのプログラムが書ける状態になる。
+
+</details> <details><summary>正解</summary>
+
+作業フォルダが作成され、VS Code上でhello.pyというファイルを作成した。
+
+</details>
+
+
+### 問9
+VS Code上で新しいターミナルを作成し、hello.pyを実行せよ。
+
+<details><summary>解説</summary>
+
+VS Codeには統合ターミナル機能があり、エディタ上から直接Pythonスクリプトを実行することができる。
+
+#### ターミナルを開く手順：
+
+1. VS Codeを開いた状態で、上部メニューの「ターミナル」から「新しいターミナル」を選択すると、画面下部にターミナルが表示される。
+   
+2. 新しいターミナルが表示されたら、Pythonが正しくインストールされていることを確認するために以下のコマンドを入力する。
+
+```bash
+$ python --version
+```
+
+Pythonのバージョンが表示されれば、環境が整っている。
+
+#### hello.pyを実行する手順：
+
+2. `hello.py` を実行するために以下のコマンドを入力する。
+
+```bash
+$ python hello.py
+```
+
+これで、ターミナル上に `Hello, World!` と表示される。
+
+</details>
+
+<details><summary>正解</summary>
+
+ターミナルを作成し、hello.pyを実行して `Hello, World!` と表示される。
+
+</details>
+
+
 ## 3. 基本的な文法
 
 ## 4. 変数とデータ型、演算子
