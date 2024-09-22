@@ -111,7 +111,7 @@ Pythonは以下の環境で動作する。
 ## 2. 環境構築
 
 ### 問4
-Pythonをインストールせよ
+Pythonをインストールせよ。
 
 <details><summary>解説</summary>
 
@@ -211,6 +211,11 @@ VS Codeが正しくインストールされ、起動する。
 
 ### 問8
 作業用のフォルダを作成し、VS Codeで開き、VS Code上からhello.pyというファイルを作成せよ。
+
+作成したhello.pyを編集し、以下のコードを書き込みなさい。
+```python
+print("Hello, World!")
+```
 
 <details><summary>解説</summary>
 
