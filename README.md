@@ -12,10 +12,11 @@
     * 4.変数とデータ型、演算子
     * 5.制御文(条件分岐、繰り返し)
     * 6.データ形式(リスト、辞書、リスト内包形式)
-    * 7.関数、クラス
-    * 8.ファイル操作
-    * 9.モジュール
-    * 10.発展問題
+    * 7.関数
+    * 8.クラス
+    * 9.ファイル操作
+    * 10.モジュール
+    * 11.発展問題
 
 # 問題
 ## 1. Pythonについて
@@ -1431,10 +1432,645 @@ print(names_over_25)  # ['John', 'Jane']
 
 </details>
 
-## 7. 関数、クラス
+## 7. 関数
 
-## 8. ファイル操作
+### 問35
+`hello_world`という名前の関数を定義し、"Hello, World!"を出力せよ。
 
-## 9. モジュール
+<details><summary>解説</summary>
 
-## 10. 発展問題
+### 関数の定義
+Pythonで関数を定義するには`def`キーワードを使う。関数名の後にカッコで引数を指定し、その後にコロンが続く。関数の処理はインデントを用いて記述する。
+
+#### 例:
+```python
+def hello_world():
+    print("Hello, World!")
+```
+
+この関数を呼び出すには、次のように関数名を使って実行する:
+```python
+hello_world()  # "Hello, World!" と出力される
+```
+
+関数の本体は、`print("Hello, World!")`という出力命令だけが書かれており、呼び出されると画面にメッセージが表示される。
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+def hello_world():
+    print("Hello, World!")
+
+# 関数の呼び出し
+hello_world()
+```
+
+#### 結果:
+```
+Hello, World!
+```
+
+</details>
+
+### 問36
+名前を引数として受け取り、"Hello, [名前]!" という挨拶を出力する関数`greet`を作成せよ。
+
+<details><summary>解説</summary>
+
+### 引数を使った関数
+引数は、関数に値を渡すための方法です。関数を呼び出すときに特定のデータを渡し、関数内部でそのデータを使って処理を行います。
+
+#### 例:
+```python
+def greet(name):
+    print(f"Hello, {name}!")
+```
+
+この関数では、`name`という引数を受け取り、それを`{}`内で利用してメッセージを作成している。`f"..."`の形式はフォーマット文字列と呼ばれ、文字列内に変数の値を埋め込むことができる。
+
+#### 関数の呼び出し:
+```python
+greet("Alice")  # "Hello, Alice!" と出力される
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+def greet(name):
+    print(f"Hello, {name}!")
+
+# 関数の呼び出し
+greet("Alice")
+greet("Bob")
+```
+
+#### 結果:
+```
+Hello, Alice!
+Hello, Bob!
+```
+
+</details>
+
+### 問37
+2つの数を受け取ってその合計を返す関数`add`を定義せよ。
+
+<details><summary>解説</summary>
+
+### 戻り値のある関数
+関数は値を計算して、その結果を返すことができる。`return`文を使うと、関数の実行結果を呼び出し元に返すことができる。
+
+#### 例:
+```python
+def add(x, y):
+    return x + y
+```
+
+この関数では、2つの引数`x`と`y`を受け取り、それらを足し合わせて結果を`return`で返している。
+
+#### 関数の呼び出し:
+```python
+result = add(3, 5)
+print(result)  # 8 と出力される
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+def add(x, y):
+    return x + y
+
+# 関数の呼び出し
+result = add(3, 5)
+print(result)
+
+result = add(10, 20)
+print(result)
+```
+
+#### 結果:
+```
+8
+30
+```
+
+</details>
+
+### 問38
+引数として名前と年齢を受け取り、"名前は[名前]で、年齢は[年齢]です。" というメッセージを返す関数を作成せよ。年齢は省略可能で、省略した場合は0歳とすること。
+
+<details><summary>解説</summary>
+
+### デフォルト引数
+デフォルト引数とは、引数が省略されたときに関数が使うデフォルトの値を設定するものである。引数名に等号で値を指定する。
+
+#### 例:
+```python
+def introduce(name, age=0):
+    return f"名前は{name}で、年齢は{age}歳です。"
+```
+
+この関数は、`name`と`age`の2つの引数を受け取るが、`age`は省略可能である。省略された場合、`age`にはデフォルト値として`0`が設定される。
+
+#### 関数の呼び出し:
+```python
+print(introduce("Alice", 25))  # "名前はAliceで、年齢は25歳です。" と出力される
+print(introduce("Bob"))  # "名前はBobで、年齢は0歳です。" と出力される
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+def introduce(name, age=0):
+    return f"名前は{name}で、年齢は{age}歳です。"
+
+# 関数の呼び出し
+print(introduce("Alice", 25))
+print(introduce("Bob"))
+```
+
+#### 結果:
+```
+名前はAliceで、年齢は25歳です。
+名前はBobで、年齢は0歳です。
+```
+
+</details>
+
+### 問39
+任意の数の整数を受け取り、それらの合計を返す関数`sum_numbers`を作成せよ。
+
+<details><summary>解説</summary>
+
+### 可変長引数
+可変長引数を使うと、関数が任意の数の引数を受け取ることがでる。これには、`*args`の形式を使う。
+
+#### 例:
+```python
+def sum_numbers(*args):
+    return sum(args)
+```
+
+`*args`は、関数が0個以上の引数をタプルとして受け取ることを意味する。`sum(args)`はそのタプルの要素をすべて足し合わせた値を返す。
+
+#### 関数の呼び出し:
+```python
+print(sum_numbers(1, 2, 3))  # 6 と出力される
+print(sum_numbers(10, 20))  # 30 と出力される
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+def sum_numbers(*args):
+    return sum(args)
+
+# 関数の呼び出し
+print(sum_numbers(1, 2, 3))
+print(sum_numbers(10, 20))
+```
+
+#### 結果:
+```
+6
+30
+```
+
+</details> 
+
+
+## 8. クラス
+
+### 問40
+`Person`クラスを定義し、次の操作を行いprintせよ。
+
+1. `name`(名前)と`age`(年齢)の2つの属性を持つクラスを作成する。
+2. `introduce`というメソッドを作成し、「私は<名前>です。<年齢>歳です。」という文章を返す。
+
+<details><summary>解説</summary>
+
+### オブジェクト指向プログラミング
+オブジェクト指向プログラミング（OOP）は、プログラムをオブジェクトという単位で構成し、それらオブジェクト間のやり取りを通じて処理を進める設計手法である。
+
+オブジェクトは現実世界のモノに当たる概念である。各オブジェクトは、データ（属性）とそのデータに関連する操作（メソッド）を持っている。人間に例えると、属性は名前や年齢、空腹度などである。メソッドは食べる、走るなどである。食べるというメソッドは空腹度のデータを操作する。
+
+オブジェクト指向プログラミングでは同じようなオブジェクトを作成することが多い。そのため、同じようなオブジェクトを作成する設計書を作成することができる。これがクラスである。
+
+### クラスとインスタンス
+
+* クラス: オブジェクトの設計図のようなもので、オブジェクト（インスタンス）を生成するためのテンプレート。
+* インスタンス: クラスから生成された具体的なオブジェクト。インスタンスは、クラスで定義された属性やメソッドを使うことができる。
+
+### クラス定義
+Pythonのクラスは、`class`キーワードを使って定義される。`__init__`メソッドは、オブジェクトが生成されたときに呼び出され、クラスの属性を初期化する。
+
+### メソッドの定義
+クラス内にメソッドを定義する際、通常の関数定義と同様に`def`キーワードを使う。メソッドの最初の引数には`self`を指定し、オブジェクト自体を参照できるようにする。
+
+#### 例
+```python
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def introduce(self):
+        return f"私は{self.name}です。{self.age}歳です。"
+```
+
+`self`は、そのメソッドが呼び出されたインスタンスを参照する。メソッド内でインスタンスの属性にアクセスするために使用する。
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def introduce(self):
+        return f"私は{self.name}です。{self.age}歳です。"
+
+p = Person("Taro", 25)
+print(p.introduce())  # "私はTaroです。25歳です。"
+```
+
+#### 結果:
+私はTaroです。25歳です。
+
+</details>
+
+### 問41
+`Car`クラスを定義し、次の操作を行いprintせよ。
+
+1. `make`(メーカー)と`year`(年式)の2つの属性を持つクラスを作成する。
+2. `car_info`というメソッドを作成し、"<メーカー>の車、年式: <年式>"という情報を返す。
+
+<details><summary>解説</summary>
+
+### クラス定義とメソッド
+Pythonのクラスは、属性を保持し、特定の動作を行うメソッドを持つ。ここでは、`make`(メーカー)と`year`(年式)という属性を定義し、それを使って情報を返すメソッドを実装する。
+
+#### 例
+```python
+class Car:
+    def __init__(self, make, year):
+        self.make = make
+        self.year = year
+
+    def car_info(self):
+        return f"{self.make}の車、年式: {self.year}"
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+class Car:
+    def __init__(self, make, year):
+        self.make = make
+        self.year = year
+
+    def car_info(self):
+        return f"{self.make}の車、年式: {self.year}"
+
+car = Car("Toyota", 2020)
+print(car.car_info())  # "Toyotaの車、年式: 2020"
+```
+
+#### 結果:
+Toyotaの車、年式: 2020
+
+</details>
+
+### 問42
+`BankAccount`クラスを定義し、次の操作を行いprintせよ。
+
+1. `balance`(残高)を初期値0で保持するクラスを作成する。
+2. `deposit(amount)`メソッドで口座にお金を預ける。
+3. `withdraw(amount)`メソッドで口座からお金を引き出す。残高不足の場合は「残高不足」と表示する。
+
+<details><summary>解説</summary>
+
+### 属性とメソッド
+クラスの属性`balance`は、初期値を0に設定する。`deposit`メソッドは引数として受け取った金額を残高に加算し、`withdraw`メソッドは引き出し額が残高より大きい場合に警告メッセージを出すようにする。
+
+#### 例
+```python
+class BankAccount:
+    def __init__(self):
+        self.balance = 0
+
+    def deposit(self, amount):
+        self.balance += amount
+
+    def withdraw(self, amount):
+        if amount > self.balance:
+            print("残高不足")
+        else:
+            self.balance -= amount
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+class BankAccount:
+    def __init__(self):
+        self.balance = 0
+
+    def deposit(self, amount):
+        self.balance += amount
+
+    def withdraw(self, amount):
+        if amount > self.balance:
+            print("残高不足")
+        else:
+            self.balance -= amount
+
+account = BankAccount()
+account.deposit(1000)
+account.withdraw(500)   # 残高は500
+account.withdraw(1000)  # "残高不足"
+```
+
+#### 結果:
+残高不足
+
+</details>
+
+### 問42
+`Student`クラスを定義し、次の操作を行いprintせよ。
+
+1. `name`(名前)と`grade`(成績)の2つの属性を持つクラスを作成する。
+2. 学生のリストを受け取り、成績が最も高い学生の名前を返す関数`find_top_student`を作成する。
+
+<details><summary>解説</summary>
+
+### リスト内のオブジェクト操作
+リストの中に`Student`オブジェクトを格納し、各オブジェクトの`grade`属性を比較して、最も高い成績の学生を特定する。`max`関数と`lambda`を使うと効率的に最大値を見つけることができる。
+
+#### 例
+```python
+class Student:
+    def __init__(self, name, grade):
+        self.name = name
+        self.grade = grade
+
+def find_top_student(students):
+    return max(students, key=lambda student: student.grade).name
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+class Student:
+    def __init__(self, name, grade):
+        self.name = name
+        self.grade = grade
+
+def find_top_student(students):
+    return max(students, key=lambda student: student.grade).name
+
+students = [Student("Alice", 90), Student("Bob", 85), Student("Charlie", 95)]
+top_student = find_top_student(students)
+print(top_student)  # "Charlie"
+```
+
+#### 結果:
+Charlie
+
+</details>
+
+### 問43
+`Animal`クラスを継承する`Dog`と`Cat`クラスを定義し、次の操作を行いprintせよ。
+
+1. `name`(名前)を持つ`Animal`クラスを作成し、そのクラスを継承して`Dog`と`Cat`クラスを定義する。
+2. `Dog`クラスの`speak`メソッドは「ワンワン」を返し、`Cat`クラスの`speak`メソッドは「ニャー」を返す。
+
+<details><summary>解説</summary>
+
+### 継承とメソッドのオーバーライド
+`Animal`クラスは共通の属性`name`を持ち、それを継承する`Dog`と`Cat`クラスがそれぞれの`speak`メソッドをオーバーライドする。
+
+#### 例
+```python
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+class Dog(Animal):
+    def speak(self):
+        return "ワンワン"
+
+class Cat(Animal):
+    def speak(self):
+        return "ニャー"
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+class Dog(Animal):
+    def speak(self):
+        return "ワンワン"
+
+class Cat(Animal):
+    def speak(self):
+        return "ニャー"
+
+dog = Dog("Pochi")
+cat = Cat("Tama")
+print(dog.speak())  # "ワンワン"
+print(cat.speak())  # "ニャー"
+```
+
+#### 結果:
+ワンワン  
+ニャー
+
+</details>
+
+### 問44
+`Book`クラスを定義し、次の操作を行いprintせよ。
+
+1. クラス変数`total_books`で作成された`Book`インスタンスの総数を保持する。
+2. 各インスタンスは`title`(タイトル)という属性を持つ。
+
+<details><summary>解説</summary>
+
+### クラス変数とインスタンス変数
+クラス変数は全インスタンスで共有される。ここでは、`total_books`がすべての`Book`インスタンスで共有され、インスタンスが生成されるたびにインクリメントされる。
+
+#### 例
+```python
+class Book:
+    total_books = 0
+
+    def __init__(self, title):
+        self.title = title
+        Book.total_books += 1
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+class Book:
+    total_books = 0
+
+    def __init__(self, title):
+        self.title = title
+        Book.total_books += 1
+
+book1 = Book("Python入門")
+book2 = Book("データサイエンス入門")
+print(Book.total_books)  # 2
+```
+
+#### 結果:
+2
+
+</details>
+
+### 問45
+`Rectangle`クラスを定義し、次の操作を行いprintせよ。
+
+1. `width`(幅)と`height`(高さ)の2つの属性を持つクラスを作成する。
+2. `area()`メソッドで面積を計算する。
+3. `__str__`メソッドを使い、`print()`で矩形の幅と高さを表示する。
+
+<details><summary>解説</summary>
+
+### 特殊メソッドと面積計算
+クラス内で`__str__`メソッドを定義すると、オブジェクトを`print()`で出力した際に、その戻り値が表示される。また、`area()`メソッドで面積を計算する。
+#### 例
+```python
+class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def area(self):
+        return self.width * self.height
+
+    def __str__(self):
+        return f"矩形 幅: {self.width}, 高さ: {self.height}"
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def area(self):
+        return self.width * self.height
+
+    def __str__(self):
+        return f"矩形 幅: {self.width}, 高さ: {self.height}"
+
+rect = Rectangle(4, 5)
+print(rect)  # 矩形 幅: 4, 高さ: 5
+print(rect.area())  # 20
+```
+
+#### 結果:
+矩形 幅: 4, 高さ: 5  
+20
+
+</details>
+
+### 問46
+`Employee`クラスを定義し、次の操作を行いprintせよ。
+
+1. プライベートな属性`_salary`(給与)を持つクラスを作成する。
+2. `salary`プロパティで給与を取得および設定する。0未満の値が設定された場合はエラーメッセージを表示する。
+
+<details><summary>解説</summary>
+
+### プライベート属性とプロパティ
+`_salary`はプライベート属性として定義し、プロパティ`salary`を使って適切な給与の設定と取得を行う。0未満の値が入力された場合にエラーメッセージを表示する。
+
+#### 例
+```python
+class Employee:
+    def __init__(self):
+        self._salary = 0
+
+    @property
+    def salary(self):
+        return self._salary
+
+    @salary.setter
+    def salary(self, value):
+        if value < 0:
+            print("給与は0以上でなければなりません")
+        else:
+            self._salary = value
+```
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+class Employee:
+    def __init__(self):
+        self._salary = 0
+
+    @property
+    def salary(self):
+        return self._salary
+
+    @salary.setter
+    def salary(self, value):
+        if value < 0:
+            print("給与は0以上でなければなりません")
+        else:
+            self._salary = value
+
+emp = Employee()
+emp.salary = 5000
+print(emp.salary)  # 5000
+emp.salary = -100  # "給与は0以上でなければなりません"
+```
+
+#### 結果:
+5000  
+給与は0以上でなければなりません
+
+</details>
+
+## 9. ファイル操作
+
+## 10. モジュール
+
+## 11. 発展問題
