@@ -14,8 +14,8 @@
     * 6.データ形式(リスト、辞書、リスト内包形式)
     * 7.関数
     * 8.クラス
-    * 9.ファイル操作
-    * 10.モジュール
+    * 9.モジュール
+    * 10.ファイル操作
     * 11.発展問題
 
 # 問題
@@ -2069,8 +2069,481 @@ emp.salary = -100  # "給与は0以上でなければなりません"
 
 </details>
 
-## 9. ファイル操作
 
-## 10. モジュール
+## 9. モジュール
+
+### 問47
+自分自身のモジュールを作成し、そのモジュールをインポートして使用するプログラムを作成しなさい。
+
+1. 新しいPythonファイル `./src/task_47_module.py` を作成し、以下の2つの関数を定義しなさい。
+    - `greet(name)`：引数で受け取った名前を用いて挨拶のメッセージを返す関数。
+    - `add(a, b)`：2つの数値を受け取り、その合計を返す関数。
+
+2. 別のPythonファイル `./src/task_47.py` を作成し、`task_47_module` をインポートして以下の操作を行いなさい。
+    - `greet` 関数を使って自分の名前で挨拶を表示する。
+    - `add` 関数を使って任意の2つの数値を足し、その結果を表示する。
+
+<details><summary>解説</summary>
+
+### モジュールの作成と使用
+モジュールとは、Pythonコードをまとめたファイルのことである。モジュールを作成するには、関数やクラスを定義したPythonファイルを保存すればよい。`import` 文を使うことで、そのモジュール内の関数や変数を別のPythonファイルで使用できる。
+
+モジュールの作成は以下の手順で行う:
+1. 新しいPythonファイルに関数やクラスを定義する。
+2. 別のPythonファイルでそのモジュールをインポートして利用する。
+
+#### 例
+1. `mymodule.py`を作成:
+```python
+# mymodule.py
+def greet(name):
+    return f"Hello, {name}!"
+
+def multiply(a, b):
+    return a * b
+```
+
+2. `main.py`でモジュールを使用:
+```python
+# main.py
+import mymodule
+
+message = mymodule.greet("Alice")
+print(message)
+
+result = mymodule.multiply(4, 5)
+print(result)
+```
+
+`import mymodule` とすることで、`mymodule` の中の関数を使うことができる。
+
+</details>
+
+<details><summary>正解</summary>
+
+1. `./src/task_47_module.py` を作成:
+```python
+# task_47_module.py
+def greet(name):
+    return f"Hello, {name}!"
+
+def add(a, b):
+    return a + b
+```
+
+2. `./src/task_47.py` を作成:
+```python
+# task_47.py
+import task_47_module
+
+# 挨拶を表示
+message = task_47_module.greet("田中")
+print(message)
+
+# 数値の合計を表示
+result = task_47_module.add(10, 20)
+print(result)
+```
+
+#### 結果:
+```
+Hello, 田中!
+30
+```
+
+</details>
+
+### 問48
+モジュールの一部の関数だけをインポートし、その関数を使って計算を行いなさい。
+
+1. 新しいPythonファイル `./src/task_48_module.py` を作成し、以下の2つの関数を定義しなさい。
+    - `multiply(a, b)`：2つの数値を掛け算し、その結果を返す関数。
+    - `subtract(a, b)`：2つの数値を引き算し、その結果を返す関数。
+
+2. 別のPythonファイル `./src/task_48.py` を作成し、`task_48_module` から `multiply` 関数だけをインポートして、任意の2つの数値を掛け算し、その結果を表示しなさい。
+
+<details><summary>解説</summary>
+
+### モジュールの一部のインポート
+モジュール全体ではなく、一部の関数やクラスだけをインポートすることができる。これにより、コードをより効率的に記述できる。`from module_name import function_name` の形式でインポートを行う。
+
+ファイルの作成や操作には注意が必要で、モジュールと同じディレクトリにPythonファイルを置く必要がある。
+
+#### 例
+1. `mathmodule.py`を作成:
+```python
+# mathmodule.py
+def divide(a, b):
+    return a / b
+
+def power(a, b):
+    return a ** b
+```
+
+2. `calc.py`でモジュールの一部をインポート:
+```python
+# calc.py
+from mathmodule import divide
+
+result = divide(10, 2)
+print(result)
+```
+
+`from mathmodule import divide` で `mathmodule` の中の `divide` 関数だけをインポートしている。
+
+</details>
+
+<details><summary>正解</summary>
+
+1. `task_48_module.py` を作成:
+```python
+# mathmodule.py
+def multiply(a, b):
+    return a * b
+
+def subtract(a, b):
+    return a - b
+```
+
+2. `task_48.py` を作成:
+```python
+# calc.py
+from task_48_module import multiply
+
+# 掛け算の結果を表示
+result = multiply(5, 3)
+print(result)
+```
+
+#### 結果:
+```
+15
+```
+
+</details>
+
+### 問49
+モジュールにエイリアスをつけてインポートし、そのモジュール内の関数を使ってリストの合計を計算しなさい。
+
+1. 新しいPythonファイル `./src/task_49_module.py` を作成し、以下の関数を定義しなさい。
+    - `sum_list(numbers)`：数値のリストを受け取り、その合計を返す関数。
+
+2. 別のPythonファイル `./src/task_49.py` を作成し、`task_49_module` をエイリアス `listmodule` としてインポートし、`sum_list` 関数を使ってリスト `[1, 2, 3, 4, 5]` の合計を計算して表示しなさい。
+
+<details><summary>解説</summary>
+
+### モジュールのエイリアス
+モジュールにエイリアスをつけることで、コードの記述が簡潔になる。`import module_name as alias` の形式でエイリアスをつける。
+
+モジュールにエイリアスをつける際は、エイリアスの名前を理解しやすく、他のコードと衝突しないものにするのが良い。
+
+#### 例
+1. `listmodule.py`を作成:
+```python
+# listmodule.py
+def find_max(numbers):
+    return max(numbers)
+```
+
+2. `maxfinder.py`でエイリアスを使ってインポート:
+```python
+# maxfinder.py
+import listmodule as lm
+
+numbers = [1, 2, 3, 4, 5]
+max_value = lm.find_max(numbers)
+print(max_value)
+```
+
+エイリアス `lm` を使うことで、モジュール名を短くしている。
+
+</details>
+
+<details><summary>正解</summary>
+
+1. `./src/task_49_module.py` を作成:
+```python
+# listmodule.py
+def sum_list(numbers):
+    return sum(numbers)
+```
+
+2. `./src/task_49.py` を作成:
+```python
+# totalsum.py
+import task_49_module as listmodule
+
+# リストの合計を計算
+numbers = [1, 2, 3, 4, 5]
+total = listmodule.sum_list(numbers)
+print(total)
+```
+
+#### 結果:
+```
+15
+```
+</details>
+
+### 問50
+組み込みモジュール `os` を使用して、現在の作業ディレクトリを取得し、その内容をリストで表示しなさい。
+
+<details><summary>解説</summary>
+
+### `os` モジュール
+`os` はPythonの組み込みモジュールであり、ファイルやディレクトリ操作、環境変数の取得など、OSレベルでの操作を行うための関数を提供している。ここでは、`getcwd()` で現在の作業ディレクトリを取得し、`listdir()` でそのディレクトリの内容をリストにして表示する。
+
+#### 例
+1. 現在の作業ディレクトリを取得して表示:
+```python
+import os
+
+current_directory = os.getcwd()
+print(f"Current directory: {current_directory}")
+```
+
+2. ディレクトリの内容を表示:
+```python
+directory_contents = os.listdir(current_directory)
+print(f"Directory contents: {directory_contents}")
+```
+
+`os.getcwd()` は現在の作業ディレクトリを文字列で返し、`os.listdir()` はディレクトリ内のファイルやフォルダのリストを取得する。
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+import os
+
+# 現在の作業ディレクトリを取得して表示
+current_directory = os.getcwd()
+print(f"Current directory: {current_directory}")
+
+# 現在の作業ディレクトリの内容をリストで表示
+directory_contents = os.listdir(current_directory)
+print(f"Directory contents: {directory_contents}")
+```
+
+#### 結果（例）:
+```
+Current directory: /Users/username/Documents
+Directory contents: ['file1.txt', 'file2.py', 'folder1']
+```
+
+</details>
+
+
+## 10. ファイル操作
+
+### 問51
+次の手順でファイルを操作するプログラムを作成しなさい。
+
+1. `./data`ディレクトリに `sample.txt` という名前のファイルを作成し、`Hello, World!` という文字列を書き込む。
+2. ファイルを閉じてから、再度開いて内容を読み込み、コンソールに出力する。
+3. ファイルを削除する。
+
+<details><summary>解説</summary>
+
+### ファイル操作
+ファイル操作には、`open()` 関数を使用する。ファイルを開く際のモードには `'w'`（書き込み）、`'r'`（読み込み）などがあり、目的に合わせて使用する。また、`with` 文を使用すると自動でファイルが閉じられるので便利である。
+
+#### 例
+```python
+# ファイルの作成と書き込み
+file = open('temp.txt', 'w')
+file.write('Sample text')
+file.close()
+
+# ファイルの読み込み
+file = open('temp.txt', 'r')
+print(file.read())
+file.close()
+```
+この例では、`open()` 関数でファイルを開き、`write()` メソッドで書き込み、`close()` メソッドでファイルを閉じている。次に再度開いて `read()` で読み込み、内容を表示している。
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+import os
+
+# ファイルの作成と書き込み
+with open('./data/sample.txt', 'w') as file:
+    file.write('Hello, World!')
+
+# ファイルの読み込み
+with open('./data/sample.txt', 'r') as file:
+    content = file.read()
+    print(content)
+
+# ファイルの削除
+os.remove('./data/sample.txt')
+```
+
+#### 結果:
+```
+Hello, World!
+```
+
+</details>
+
+### 問52
+次の手順で複数行のテキストをファイルに書き込むプログラムを作成しなさい。
+
+1. `./data/multilines.txt` という名前のファイルを作成し、以下のリスト内の各文字列を1行ずつファイルに書き込む。
+   ```
+   lines = ["Line 1", "Line 2", "Line 3", "Line 4", "Line 5"]
+   ```
+2. ファイルを閉じてから再度開き、全ての行を一度に読み込み、コンソールに出力する。
+
+<details><summary>解説</summary>
+
+### 複数行の書き込み
+`writelines()` メソッドを使うと、リスト内の文字列をまとめてファイルに書き込むことができる。ただし、各行の末尾に `\n` を付加して改行する必要がある。
+
+#### 例
+```python
+lines = ["Line A", "Line B", "Line C"]
+
+# 書き込み
+with open('temp_lines.txt', 'w') as file:
+    for line in lines:
+        file.write(line + '\n')
+
+# 読み込み
+with open('temp_lines.txt', 'r') as file:
+    print(file.readlines())
+```
+
+この例では、`write()` メソッドで各行を書き込み、`readlines()` で全行をリスト形式で読み込んでいる。
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+lines = ["Line 1\n", "Line 2\n", "Line 3\n", "Line 4\n", "Line 5\n"]
+
+# 書き込み
+with open('./data/multilines.txt', 'w') as file:
+    file.writelines(lines)
+
+# 読み込み
+with open('./data/multilines.txt', 'r') as file:
+    content = file.read()
+    print(content)
+```
+
+#### 結果:
+```
+Line 1
+Line 2
+Line 3
+Line 4
+Line 5
+```
+
+</details>
+
+### 問53
+`./data/check_file.txt`のサイズを取得し、サイズが0バイトであれば「ファイルは空です」と表示し、そうでなければ「ファイルのサイズは (サイズ) バイトです」と表示するプログラムを作成しなさい。
+
+<details><summary>解説</summary>
+
+### ファイルサイズの取得
+ファイルのサイズは `os.path.getsize()` 関数で取得できる。`os.path.exists()` を使って、ファイルが存在するかのチェックも行うとよい。
+
+#### 例
+```python
+import os
+
+# ファイルの存在チェックとサイズ取得
+if os.path.isfile(file_name):
+    size = os.stat(file_name).st_size
+    print(f'ファイルサイズ: {size} バイト')
+else:
+    print('ファイルが存在しません')
+```
+
+この例では、`os.stat()` 関数を使ってファイルのサイズを取得している。
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+import os
+
+# ファイルサイズのチェック
+file_path = './data/check_file.txt'
+if os.path.exists(file_path):
+    file_size = os.path.getsize(file_path)
+    if file_size == 0:
+        print('ファイルは空です')
+    else:
+        print(f'ファイルのサイズは {file_size} バイトです')
+else:
+    print('ファイルが存在しません')
+```
+
+#### 結果:
+```
+ファイルは空です
+```
+
+</details>
+
+### 問54
+次の手順でファイルをコピーするプログラムを作成しなさい。
+
+1. `./data/source.txt` という名前のファイルを作成し、適当な内容を書き込む。
+2. `./data/destination.txt` という名前のファイルに `./data/source.txt` の内容をコピーする。
+3. コピー完了のメッセージを表示する。
+
+<details><summary>解説</summary>
+
+### ファイルのコピー
+`shutil` モジュールを使うと、ファイルを簡単にコピーできる。`shutil.copy()` はコピー元とコピー先のパスを引数として指定する。
+
+#### 例
+```python
+import shutil
+
+# コピー元ファイルを開いて読み込み
+with open('copy_source.txt', 'w') as file:
+    file.write('Original content')
+
+# ファイルをコピー
+shutil.copy('copy_source.txt', 'copy_dest.txt')
+print('コピー完了')
+```
+
+この例では、`shutil.copy()` を使って `copy_source.txt` の内容を `copy_dest.txt` にコピーしている。
+
+</details>
+
+<details><summary>正解</summary>
+
+```python
+import shutil
+
+# ファイルの作成と書き込み
+with open('./data/source.txt', 'w') as file:
+    file.write('This is a source file.')
+
+# ファイルのコピー
+shutil.copyfile('./data/source.txt', './data/destination.txt')
+print('ファイルのコピーが完了しました')
+```
+
+#### 結果:
+```
+ファイルのコピーが完了しました
+```
+
+</details>
 
 ## 11. 発展問題
