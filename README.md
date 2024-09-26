@@ -2554,3 +2554,252 @@ print('ファイルのコピーが完了しました')
 </details>
 
 ## 11. 発展問題
+
+### 問55
+コマンドライン引数から数値を受け取り、素因数分解を行いなさい。
+
+出力形式は
+```
+素因数1^乗 + 素因数2^乗 + ...
+```
+のような形式にしなさい。
+
+**例1:**  
+入力: 
+```
+200
+```
+出力:
+```
+2^3 + 5^2
+```
+
+**例2:**  
+入力: 
+```
+10561
+```
+出力:
+```
+59^1 + 179^1
+```
+
+<details><summary>解説</summary>
+
+### 素因数分解
+素因数分解では、数値をその素因数の積に分解します。最初に2で割り切れるだけ割り、それから奇数の素数で割っていくことで素因数を求めます。素因数とその個数を保持し、指定されたフォーマットで出力します。
+
+#### 例
+数値200の素因数分解の手順:
+1. 200 ÷ 2 = 100 (2を1つ見つける)
+2. 100 ÷ 2 = 50 (2を1つ見つける)
+3. 50 ÷ 2 = 25 (2を1つ見つける)
+4. 25 ÷ 5 = 5 (5を1つ見つける)
+5. 5 ÷ 5 = 1 (5を1つ見つける)
+
+これにより、素因数分解の結果は `2^3 + 5^2` となります。
+
+</details>
+
+<details><summary>正解例</summary>
+
+```python
+import sys
+
+def prime_factors(n):
+    factors = {}
+    # 2で割り続ける
+    while n % 2 == 0:
+        factors[2] = factors.get(2, 0) + 1
+        n //= 2
+    # 奇数で割り続ける
+    for i in range(3, int(n**0.5) + 1, 2):
+        while n % i == 0:
+            factors[i] = factors.get(i, 0) + 1
+            n //= i
+    # 最後の素数が残った場合
+    if n > 2:
+        factors[n] = 1
+    return factors
+
+# コマンドライン引数から数値を取得
+number = int(sys.argv[1])
+factors = prime_factors(number)
+
+# 結果のフォーマット
+result = ' + '.join([f'{factor}^{count}' for factor, count in factors.items()])
+print(result)
+```
+
+#### 結果:
+```
+入力: 200
+出力: 2^3 + 5^2
+
+入力: 10561
+出力: 59^1 + 179^1
+```
+
+</details>
+
+### 問56
+生徒の点数管理システムを作成せよ
+
+1. 学年を管理するクラス`Grade`を作成する。プロパティとメソッドは以下の通り
+    * `student_list` : `Student`のインスタンスのリストのプロパティ - 生徒のリスト
+    * `subject_list` : 文字列のリストのプロパティ - 教科のリスト
+    * `get_high_score` : メソッド - 平均点が最も高い生徒の名前と点数を表示する。
+
+2. `Student`クラスを作成する。プロパティとメソッドは以下の通り
+    * `name` : 文字列のプロパティ - 名前
+    * `score_list` : 数字のリストのプロパティ - 各教科の点数
+    * `get_average_score` : メソッド - この生徒の平均点を求める
+    * `display_score` : メソッド - この生徒の名前と平均点を表示する
+
+3. `./data/task_56.csv`を読み込み、`Grade`インスタンスを作成する。`subject_list`には教科名のリストを代入し、`student_list`には`Student`のインスタンスを代入する。CSVの形式は以下の通りである。
+```csv
+名前, 国語, 数学, 社会, 体育
+田中太郎, 100, 90, 85, 99
+山田花子, 50, 100, 95, 60
+...
+```
+
+4. すべての生徒の中で、最も平均点が高かった生徒の名前と点数を表示する。
+
+<details><summary>解説</summary>
+
+### クラスの作成とメソッドの実装
+まず、各生徒の情報を保持するための`Student`クラスを作成する。このクラスには名前と点数のリストを保持するプロパティがあり、平均点を計算するメソッド`get_average_score`と平均点を表示するメソッド`display_score`を持つ。
+
+次に、学年全体を管理する`Grade`クラスを作成する。このクラスには生徒のリストと教科のリストを保持するプロパティがあり、最も平均点が高い生徒を見つけて表示するメソッド`get_high_score`を持つ。
+
+CSVファイルからデータを読み込み、生徒と学年のインスタンスを作成して、各生徒の平均点を計算する。
+
+#### 例
+```python
+# Studentクラスの例
+student = Student('田中太郎', [100, 90, 85, 99])
+average_score = student.get_average_score()
+print(average_score)  # 出力: 93.5
+```
+
+この例では、`Student`クラスのインスタンスを作成し、その平均点を計算して表示している。
+
+</details>
+
+<details><summary>正解例</summary>
+
+```python
+import csv
+
+class Student:
+    def __init__(self, name, score_list):
+        self.name = name
+        self.score_list = score_list
+
+    def get_average_score(self):
+        return sum(self.score_list) / len(self.score_list)
+
+    def display_score(self):
+        average = self.get_average_score()
+        print(f'{self.name}の平均点: {average:.2f}点')
+
+class Grade:
+    def __init__(self, subject_list):
+        self.student_list = []
+        self.subject_list = subject_list
+
+    def add_student(self, student):
+        self.student_list.append(student)
+
+    def get_high_score(self):
+        highest_avg_student = max(self.student_list, key=lambda student: student.get_average_score())
+        highest_avg = highest_avg_student.get_average_score()
+        print(f'最高平均点の生徒: {highest_avg_student.name} - 平均点: {highest_avg:.2f}点')
+
+# CSVファイルを読み込み、Gradeインスタンスを作成
+subject_list = []
+grade = None
+with open('./data/task_56.csv', newline='', encoding='utf-8') as csvfile:
+    reader = csv.reader(csvfile)
+    for i, row in enumerate(reader):
+        if i == 0:
+            subject_list = row[1:]  # 最初の行から教科名を取得
+            grade = Grade(subject_list)
+        else:
+            name = row[0]
+            scores = list(map(int, row[1:]))
+            student = Student(name, scores)
+            grade.add_student(student)
+
+# 最も平均点が高かった生徒を表示
+grade.get_high_score()
+```
+
+</details>
+
+### 問57
+以下の問題を解くプログラムを作成せよ
+
+1. 入力はコマンドラインから1から9までの整数が4つ与えられる
+2. 整数を並べたとき、それぞれの数値間に四則演算を行う
+3. このとき、最終結果が10ぴったりになる演算の組み合わせを探索せよ
+4. 整数の順序は自由に入れ替えられるものとする
+
+<details><summary>解説</summary>
+
+### 探索の実装
+4つの整数の順列を全て試し、それぞれの順列に対して四則演算の全ての組み合わせを試すことで、最終的な結果が10になるパターンを見つける。各組み合わせで計算を行い、結果が10になったらその組み合わせを出力する。順列の組み合わせは`itertools.permutations`で、四則演算の組み合わせは`itertools.product`を使って生成できる。
+
+また、演算の組み合わせを探索する際に、括弧を使わずに左から順に計算を行うことでシンプルに実装できる。
+
+#### 例
+入力の整数が`1, 2, 3, 4`の場合、考えられる順列と演算の組み合わせをすべて試して最終的な結果が10になるものを探す。
+
+- 順列の例: `(1, 2, 3, 4)`, `(4, 3, 2, 1)` など
+- 四則演算の例: `+`, `-`, `*`, `/` の各組み合わせ
+
+このように、全ての組み合わせを探索して条件に合うものを探す。
+
+</details>
+
+<details><summary>正解例</summary>
+
+```python
+import sys
+import itertools
+
+def calculate(num_list, ops):
+    result = num_list[0]
+    for i in range(3):
+        if ops[i] == '+':
+            result += num_list[i + 1]
+        elif ops[i] == '-':
+            result -= num_list[i + 1]
+        elif ops[i] == '*':
+            result *= num_list[i + 1]
+        elif ops[i] == '/':
+            if num_list[i + 1] == 0:
+                return None  # ゼロ除算を回避
+            result /= num_list[i + 1]
+    return result
+
+def find_combinations(nums):
+    operators = ['+', '-', '*', '/']
+    for perm in itertools.permutations(nums):
+        for ops in itertools.product(operators, repeat=3):
+            if calculate(perm, ops) == 10:
+                print(f"{perm[0]} {ops[0]} {perm[1]} {ops[1]} {perm[2]} {ops[2]} {perm[3]} = 10")
+
+# コマンドライン引数から4つの整数を取得
+numbers = list(map(int, sys.argv[1:5]))
+find_combinations(numbers)
+```
+
+#### 結果:
+```
+入力: 1 2 3 4
+出力例: 1 + 2 + 3 + 4 = 10
+```
+
+</details>
