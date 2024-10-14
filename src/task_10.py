@@ -1,1 +1,1 @@
-print("sano")
+print("佐野太一")
