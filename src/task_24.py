@@ -1,4 +1,4 @@
-age = 0
+age = 20
 if (age>=20):
     print("未成年ではありません!!")
 else:
