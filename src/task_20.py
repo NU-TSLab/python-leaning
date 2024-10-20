@@ -1,3 +1,4 @@
+#task_20
 result = 5 ** 2
 print(result)
 
