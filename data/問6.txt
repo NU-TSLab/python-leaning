@@ -1,1 +1,0 @@
-Visual Studio Code, Brackets, Atom, Sublime Text, Liveweave, Emacs
