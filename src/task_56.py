@@ -41,3 +41,6 @@ with open("./data/task_56.csv", "r") as f:
             grade.add_student(student)
 
 grade.get_high_score()
+
+#python3 /Users/linhaojie/python-leaning/src/task_56.py
+#最高平均点の学生: 松本潤, 平均点: 91.88
