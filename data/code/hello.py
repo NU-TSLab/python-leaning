@@ -11,4 +11,7 @@ class BankAccount:
         else:
             self.balance -= amount
 
-            
+account = BankAccount()
+account.deposit(1000)
+account.withdraw(500)
+account.withdraw(1000)
