@@ -1,0 +1,1 @@
+print("Suetake Takuma")
