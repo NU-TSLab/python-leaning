@@ -1,11 +1,6 @@
-class Car:
-    def __init__(self, make, year):
-        self.make = make
-        self.year = year
+class BankAccount:
+    def __init__(self):
+        self.balance = 0
 
-    def car_info(self):
-        return f"{self.make}の車、年式：{self.year}"
-    
-
-c = Car("Toyuta", 98)
-print(c.car_info())
+    def deposit(self, amount):
+        self.balance += amount
