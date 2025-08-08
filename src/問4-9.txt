@@ -1,5 +1,0 @@
-問4　pythonがPCに正しくインストールされた
-問5　Python 3.13.6と表示された
-問6　Visual Studio,Notepad,秀丸エディタ,Brackets,Sublime Text,Atom,サクラエディタ,Mery,TeraPad
-問7　VS Codeをインストールし,起動した
-問9  ターミナルを作成し,hello.pyを実行して,Hello,World!と表示された
