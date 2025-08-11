@@ -1,12 +1,8 @@
-data = open("multilines.txt", "w")
 lines = ["Line 1", "Line 2", "Line 3", "Line 4", "Line 5"]
-for i in range(5):
-    data.write(lines[i])
 
-data.close()
+with open('multilines.txt', 'w') as file:
+    for line in lines:
+        file.write(line + '\n')
 
-data = open("multilines.txt", "r")
-for i in range(5):
-    print(data[i])
-
-data.close()
+with open('multilines.txt', 'r') as file:
+    print(file.readlines())
