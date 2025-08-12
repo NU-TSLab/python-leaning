@@ -20,8 +20,23 @@ class Grade:
     def add_student(self, student):
         self.student_list.append(student)
 
-    def get_high_score(self, student_list, subject_list):
+    def get_high_score(self):
         highest_avg_student = max(self.student_list, key=lambda student: student.get_average_score())
         highest_avg = highest_avg_student.get_average_score()
         print(f'最高平均点の生徒: {highest_avg_student.name} - 平均点: {highest_avg:.2f}点')
     
+subject_list = []
+grade = None
+with open('python-leaning\\data\\task_56.csv', newline='', encoding='utf-8') as f:
+    reader = csv.reader(f)
+    for i, row in enumerate(reader):
+        if i == 0:
+            subject_list = row[1:]
+            grade = Grade(subject_list)
+        else:
+            name = row[0]
+            scores = list(map(int, row[1:]))
+            student = Student(name, scores)
+            grade.add_student(student)
+
+grade.get_high_score()
