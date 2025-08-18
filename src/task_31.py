@@ -1,0 +1,10 @@
+nu_list=[1,2,3,4,5]
+print(nu_list[0])
+print(nu_list[2])
+print(nu_list[-1])
+nu_list.append(6)
+print(nu_list)
+nu_list[2]=10
+print(nu_list)
+nu_list.insert(1,10)
+print(nu_list)
