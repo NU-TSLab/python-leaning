@@ -4,12 +4,12 @@ class BankAccount:
 
     def deposit(self, amount):
         self.balance += amount
-        print(f"残高:{self.balance}")
+        print(f"残高:{self.balance}円")
 
     def withdraw(self, amount):
         if self.balance >= amount:
             self.balance -= amount
-            print(f"残高:{self.balance}")
+            print(f"残高:{self.balance}円")
         else:
             print("残高不足です。")
 
