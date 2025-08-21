@@ -12,7 +12,35 @@ def img_diff(img1, img2):
     return np.array(diff, dtype='uint8')
 
 # hsv自作関数
-# def rgb_to_hsv(src, ksize=3):
+def rgb_to_hsv(src):
+    # BGR to RGB
+    b, g, r = cv2.split(src.astype('float32') / 255.0)
+
+    cmax = np.maximum(np.maximum(r, g), b)
+    cmin = np.minimum(np.minimum(r, g), b)
+    delta = cmax - cmin
+
+    # Hue
+    H = np.zeros_like(cmax)
+    mask = delta != 0
+    idx = (cmax == r) & mask
+    H[idx] = (60 * ((g[idx] - b[idx]) / delta[idx]) + 360) % 360
+    idx = (cmax == g) & mask
+    H[idx] = (60 * ((b[idx] - r[idx]) / delta[idx]) + 120) % 360
+    idx = (cmax == b) & mask
+    H[idx] = (60 * ((r[idx] - g[idx]) / delta[idx]) + 240) % 360
+    H = (H / 2).astype('uint8')  # 0-179 にスケール
+
+    # Saturation
+    S = np.zeros_like(cmax)
+    S[cmax != 0] = (delta[cmax != 0] / cmax[cmax != 0]) * 255
+    S = S.astype('uint8')
+
+    # Value
+    V = (cmax * 255).astype('uint8')
+
+    hsv = cv2.merge([H, S, V])
+    return hsv
 
 def get_colorplane(frame):
     # HSVグレースケール変換
