@@ -47,15 +47,15 @@ def get_colorplane(frame):
     # library
     # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     # 自作関数
-    # gray = rgb_to_hsv()
+    gray = rgb_to_hsv()
 
     # RGBグレースケール変換 cv2.COLOR_BGR2GRAY
     # cv2.COLOR_BGR2GRAY 輝度変換してる下記式
     # 輝度信号Y = 0.299・R+0.587・G+0.114・B
     # library
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # 自作関数
-
+    
     return gray
 
 # カメラ初期呼び出し
