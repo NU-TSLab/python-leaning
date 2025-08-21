@@ -16,9 +16,9 @@ cap.set(cv2.CAP_PROP_FPS, FPS)
 fps = cap.get(cv2.CAP_PROP_FPS)
 
 while (cap.isOpened()):
-
-    ret, frame = cap.read()
-
+    ret = 0
+    while not ret:
+        ret, frame = cap.read()
     cv2.imshow("Frame", frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
