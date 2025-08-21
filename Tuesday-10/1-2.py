@@ -15,18 +15,22 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, HEIGHT)
 cap.set(cv2.CAP_PROP_FPS, FPS)
 
 fps = cap.get(cv2.CAP_PROP_FPS)
-count = 0
-start = time.perf_counter()
+count = -1
+
 while (cap.isOpened()):
-    ret = 0
-    while not ret:
-        ret, frame = cap.read()
+    
+    ret, frame = cap.read()
+
     cv2.imshow("Frame", frame)
-    count += 1
+    if ret:
+        count += 1
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         end = time.perf_counter()
         break
+
+    if count == 0:
+        start = time.perf_counter()
 
 cap.release()
 print(f"実際のfps:{count / (end - start)}")
