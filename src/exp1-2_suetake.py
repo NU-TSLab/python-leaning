@@ -17,6 +17,7 @@ cap.set(cv2.CAP_PROP_FPS, FPS)
 
 fps = cap.get(cv2.CAP_PROP_FPS)
 count = -1
+
 while (cap.isOpened()):    
     ret = 0
     while not ret:
