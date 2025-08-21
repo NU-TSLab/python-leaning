@@ -42,12 +42,24 @@ def rgb_to_hsv(src):
     hsv = cv2.merge([H, S, V])
     return hsv
 
+def rgb_to_gray(src):
+    # BGRを分離 (OpenCVはBGR順)
+    b, g, r = cv2.split(src.astype('float32'))
+
+    # 輝度値を計算
+    gray = 0.299 * r + 0.587 * g + 0.114 * b
+
+    # 0-255 にクリップして uint8 に変換
+    gray = np.clip(gray, 0, 255).astype('uint8')
+
+    return gray
+
 def get_colorplane(frame):
     # HSVグレースケール変換
     # library
     # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     # 自作関数
-    gray = rgb_to_hsv()
+    # gray = rgb_to_hsv(frame)
 
     # RGBグレースケール変換 cv2.COLOR_BGR2GRAY
     # cv2.COLOR_BGR2GRAY 輝度変換してる下記式
@@ -55,7 +67,7 @@ def get_colorplane(frame):
     # library
     # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # 自作関数
-    
+    gray = rgb_to_gray(frame)
     return gray
 
 # カメラ初期呼び出し
