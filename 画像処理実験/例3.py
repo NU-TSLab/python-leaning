@@ -31,12 +31,12 @@ gray_1 = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 # 画像を表示
 cv2.imshow("frame", frame)
-cv2.imshow("gray_1", gray_lib)
+cv2.imshow("gray_1", gray_1)
 
 time.sleep(1)
 
 b, g, r = frame[..., 0], frame[..., 1], frame[..., 2]
-gray_2 = 0.114 * b + 0.587 * g + 0.299 * r
+gray_2 = (0.114 * b + 0.587 * g + 0.299 * r).astype(np.uint8)
 
 cv2.imshow("gray_2", gray_2)
 
