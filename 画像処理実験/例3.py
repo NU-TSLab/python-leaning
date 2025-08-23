@@ -25,8 +25,6 @@ cap.set(cv2.CAP_PROP_FPS, FPS)
 # フレームの取得
 ret, frame = cap.read()
 
-# RGBグレースケール変換 cv2.COLOR_BGR2GRAY
-# library
 gray_1 = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 # 画像を表示
