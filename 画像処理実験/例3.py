@@ -27,7 +27,7 @@ ret, frame = cap.read()
 
 # RGBグレースケール変換 cv2.COLOR_BGR2GRAY
 # library
-gray_lib = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+gray_1 = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 # 画像を表示
 cv2.imshow("frame", frame)
@@ -35,20 +35,19 @@ cv2.imshow("gray_1", gray_lib)
 
 time.sleep(1)
 
-b, g, r = cv2.split(frame)
-gray_manual = 0.299 * r + 0.587 * g + 0.114 * b
-gray_manual = gray_manual.astype(np.uint8)
+b, g, r = frame[..., 0], frame[..., 1], frame[..., 2]
+gray_2 = 0.114 * b + 0.587 * g + 0.299 * r
 
-cv2.imshow("gray_manual", gray_manual)
+cv2.imshow("gray_2", gray_2)
 
 # 待機(0.03sec)
 time.sleep(1)
 
 # 画像の保存
-result = cv2.imwrite("rei3.jpg", gray_lib)
+result = cv2.imwrite("rei3.jpg", gray_1)
 print("保存結果:", result)
 
-result = cv2.imwrite("rei3jisaku.jpg", gray_manual)
+result = cv2.imwrite("rei3jisaku.jpg", gray_2)
 print("保存結果:", result)
 
 
