@@ -54,13 +54,17 @@ for name, colorplane in get_colorplane.items():
     cv2.imshow("gray", diff)
     cv2.waitKey(1000)
 
+    dict = {"bg": bg_frame, "frame": fr_frame, "diff": diff}
+
     # 画像の保存
-    result = cv2.imwrite(f"rei4_{name}_bg.jpg", bg)
-    print("bg保存結果:", result)
-    result = cv2.imwrite(f"rei4_{name}_frame.jpg", frame)
-    print("frame保存結果:", result)
-    result = cv2.imwrite(f"rei4_{name}_gray.jpg", diff)
-    print("gray保存結果:", result)
+    for key, img in dict.items():
+        filename = f"rei4_{name}_{key}.jpg"
+        result = cv2.imwrite(filename, img)
+        print(f"{filename} 保存結果: {result}")
+        print(f"{key} 画像サイズ: {img.shape}")
+        print(f"{key} 取り込んだ画像: {img.nbytes} bytes")
+        filesize = os.path.getsize(filename)
+        print(f"{key} 出力した画像: {filesize} bytes")
 
 # カメラのリリース
 cap.release()
