@@ -46,9 +46,17 @@ time.sleep(1)
 # 画像の保存
 result = cv2.imwrite("rei3.jpg", gray_1)
 print("保存結果:", result)
+print(f"画像サイズ: {gray_1.shape}")
+print(f"取り込んだ画像:{gray_1.nbytes}bytes")
+filesize = os.path.getsize("rei3.jpg")
+print(f"出力した画像:{filesize}bytes")
 
 result = cv2.imwrite("rei3jisaku.jpg", gray_2)
 print("保存結果:", result)
+print(f"画像サイズ: {gray_2.shape}")
+print(f"取り込んだ画像:{gray_2.nbytes}bytes")
+filesize = os.path.getsize("rei3jisaku.jpg")
+print(f"出力した画像:{filesize}bytes")
 
 
 # カメラのリリース
