@@ -26,9 +26,13 @@ while True:
     cv2.imshow("Binary", binary)
     cv2.imshow("Original", frame)
 
+    # 保存
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        result = cv2.imwrite("2-2black.jpg", binary)
+        print("保存結果:", result)
 
     # 終了
-    if cv2.waitKey(30) == 27:
+    elif cv2.waitKey(30) == 27:
         break
 
 cap.release()
