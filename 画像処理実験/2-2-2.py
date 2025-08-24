@@ -28,7 +28,7 @@ while True:
 
     # 保存
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        result = cv2.imwrite("2-2black.jpg", binary)
+        result = cv2.imwrite("2-2black.jpg", frame)
         print("保存結果:", result)
 
     # 終了
