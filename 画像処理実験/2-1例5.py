@@ -34,7 +34,7 @@ cv2.waitKey(1000)
 # 2値化
 threshold = 128
 max = 255
-retval, binary = cv2.threshold(gray_1, threshold, max, cv2.THRESH_BINARY)
+_, binary = cv2.threshold(gray_1, threshold, max, cv2.THRESH_BINARY)
 cv2.imshow("binary1", binary)
 cv2.waitKey(1000)
 
