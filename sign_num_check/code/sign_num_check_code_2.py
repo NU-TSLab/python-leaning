@@ -5,13 +5,15 @@ import easyocr
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 # ==== 設定 ====
-DATA_DIR = r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pic"
-LOG_FILE = "ocr_feedback_2.csv"
+DATA_DIR = r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pic_2"
+LOG_FILE = "ocr_feedback_1_2.csv"
 
-# GPUが使える環境なら use_gpu=True にすると速い
-reader = easyocr.Reader(['en'], gpu=True)
+# 認識を許可する標識数字
+VALID_SIGNS = {"10","20","30","40","50","60","70","80"}
 
-# ==== 既に処理したファイルを記録 ====
+reader = easyocr.Reader(['en'], gpu=True)   # GPU不要なら gpu=False
+
+# ==== 既に処理したファイル ====
 processed = set()
 if os.path.exists(LOG_FILE):
     with open(LOG_FILE, newline='', encoding='utf-8') as f:
@@ -19,53 +21,56 @@ if os.path.exists(LOG_FILE):
             if row:
                 processed.add(row[0])
 
-# ==== 画像ファイルを取得 ====
+# ==== 画像ファイル ====
 image_files = []
-for ext in ("*.jpg"):
+for ext in ("*.jpg",):
     image_files.extend(glob.glob(os.path.join(DATA_DIR, ext)))
 
 print(f"見つかった画像ファイル数: {len(image_files)}")
 if not image_files:
     print("画像が見つかりません。DATA_DIR のパスを再確認してください。")
 
-# ==== 確認ループ ====
+# ==== メインループ ====
 for img_path in image_files:
     if img_path in processed:
         continue
 
-    # --- 画像読込 ---
     img = cv2.imread(img_path)
     if img is None:
         print(f"読み込み失敗: {img_path}")
         continue
 
-    # --- 青色マスク作成 ---
+    # -------- 明るさ・コントラスト補正 --------
+    # α: コントラスト倍率 (>1で強調), β: 明るさ補正値
+    alpha, beta = 1.3, 30
+    img = cv2.convertScaleAbs(img, alpha=alpha, beta=beta)
+
+    # 青色マスク
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    # 青の範囲を定義（必要に応じて調整）
-    lower_blue = np.array([90,  60,  50])   # H,S,V
+    lower_blue = np.array([90,  60,  50])
     upper_blue = np.array([130, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
 
-    # --- 白黒反転して数字を白地に ---
+    # 白黒反転
     preproc = cv2.bitwise_not(mask)
 
-    # --- OCR 実行 ---
+    # OCR
     results = reader.readtext(preproc, detail=0)
-    # 数字のみ抽出（0〜9のみで構成される文字列を残す）
-    int_results = [txt for txt in results if txt.isdigit()]
-    prediction = " ".join(int_results)
 
-    # --- 画像を既定ビューアで開く（Windows）---
+    # 許可された標識のみ残す
+    filtered = [txt for txt in results if txt.isdigit() and txt in VALID_SIGNS]
+    prediction = " ".join(filtered)
+
+    # 画像を既定ビューアで開く（Windows）
     try:
         os.startfile(img_path)
     except AttributeError:
-        # macOS / Linuxなら open / xdg-open などに変更
         pass
 
     print(f"ファイル: {os.path.basename(img_path)}")
-    print(f"OCR推定: {prediction if prediction else '(自然数は検出されませんでした)'}")
+    print(f"OCR推定: {prediction if prediction else '(標識候補は検出されませんでした)'}")
 
-    # --- フィードバック ---
+    # フィードバック
     while True:
         ans = input("正しければ y / 間違いなら n を入力: ").strip().lower()
         if ans in ("y", "n"):
