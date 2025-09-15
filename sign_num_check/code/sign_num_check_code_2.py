@@ -41,15 +41,23 @@ for img_path in image_files:
         continue
 
     # -------- 明るさ・コントラスト補正 --------
-    # α: コントラスト倍率 (>1で強調), β: 明るさ補正値
     alpha, beta = 1.3, 30
     img = cv2.convertScaleAbs(img, alpha=alpha, beta=beta)
 
-    # 青色マスク
+    # -------- 青色マスク --------
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     lower_blue = np.array([90,  60,  50])
     upper_blue = np.array([130, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
+
+    # -------- ノイズ低減 --------
+    # ガウシアンブラーで平滑化
+    mask = cv2.GaussianBlur(mask, (5, 5), 0)
+
+    # モルフォロジー処理（小さな点ノイズ除去）
+    kernel = np.ones((3, 3), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=2)  # 穴埋め
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)   # 小さい点除去
 
     # 白黒反転
     preproc = cv2.bitwise_not(mask)
@@ -60,6 +68,11 @@ for img_path in image_files:
     # 許可された標識のみ残す
     filtered = [txt for txt in results if txt.isdigit() and txt in VALID_SIGNS]
     prediction = " ".join(filtered)
+
+    # デバッグ用にマスク確認したい場合はコメントアウト解除
+    cv2.imshow("mask", mask)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
     # 画像を既定ビューアで開く（Windows）
     try:
