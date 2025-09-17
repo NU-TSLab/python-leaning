@@ -3,14 +3,27 @@ import numpy as np
 import os
 import glob
 
-def generate_variations_from_folder(input_dir, output_dir="output", discard_bad=True):
+def generate_variations_from_folder(input_dir, output_dir="output", ksize=3):
+    """
+    指定フォルダ内のPNG画像に対して回転・拡大縮小を行い、
+    グレースケール化＋MedianBlurでノイズ除去した画像を保存する。
+
+    Parameters
+    ----------
+    input_dir : str
+        入力画像フォルダ
+    output_dir : str
+        出力先フォルダ
+    ksize : int
+        MedianBlurのカーネルサイズ（奇数）。例: 3, 5
+    """
     # 出力先ディレクトリ作成
     os.makedirs(output_dir, exist_ok=True)
 
     # フォルダ内のPNGファイル一覧取得
-    files = glob.glob(os.path.join(input_dir, "*.jpg"))
+    files = glob.glob(os.path.join(input_dir, "*.png"))
     if not files:
-        raise FileNotFoundError(f"{input_dir} に .jpg ファイルが見つかりません。")
+        raise FileNotFoundError(f"{input_dir} に .png ファイルが見つかりません。")
 
     # 回転角度と倍率の組み合わせ
     angles = [-10, 0, 10]
@@ -41,20 +54,11 @@ def generate_variations_from_folder(input_dir, output_dir="output", discard_bad=
 
             for angle in angles:
                 # 回転
-                M = cv2.getRotationMatrix2D(center, angle, 1.0)  # scale=1.0（すでにリサイズ済み）
+                M = cv2.getRotationMatrix2D(center, angle, 1.0)  # scale=1.0（リサイズ済み）
                 rotated = cv2.warpAffine(resized, M, (w, h), flags=cv2.INTER_LINEAR)
 
-                # --- ノイズ除去処理 ---
-                blurred = cv2.GaussianBlur(rotated, (5, 5), 0)
-                _, denoised = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-                # 品質チェック（真っ黒／真っ白すぎる画像は破棄）
-                if discard_bad:
-                    white_ratio = np.mean(denoised == 255)
-                    if white_ratio < 0.05 or white_ratio > 0.95:
-                        # 破棄
-                        print(f"破棄: {filename} ang{angle} scale{scale} (白比率={white_ratio:.2f})")
-                        continue
+                # --- MedianBlurでノイズ除去 ---
+                denoised = cv2.medianBlur(rotated, ksize)
 
                 # 保存パス
                 out_name = f"{filename}_ang{angle}_scale{scale}.png"
@@ -64,10 +68,10 @@ def generate_variations_from_folder(input_dir, output_dir="output", discard_bad=
                 count += 1
                 total_count += 1
 
-        print(f"{filename}: {count} 枚生成 (破棄除く)")
+        print(f"{filename}: {count} 枚生成")
 
     print(f"合計 {total_count} 枚を {output_dir} に保存しました。")
 
 
 # 使用例
-generate_variations_from_folder(r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching", r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching_temprate")
+generate_variations_from_folder("input_folder", "augmented", ksize=3)
