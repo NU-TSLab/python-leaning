@@ -5,7 +5,7 @@ import glob
 
 def generate_variations_from_folder(input_dir, output_dir="output", ksize=3):
     """
-    指定フォルダ内のPNG画像に対して回転・拡大縮小を行い、
+    指定フォルダ内のPNG/JPG画像に対して、回転・拡大縮小・縦方向の傾斜を行い、
     グレースケール化＋MedianBlurでノイズ除去した画像を保存する。
 
     Parameters
@@ -15,19 +15,22 @@ def generate_variations_from_folder(input_dir, output_dir="output", ksize=3):
     output_dir : str
         出力先フォルダ
     ksize : int
-        MedianBlurのカーネルサイズ（奇数）。例: 3, 5
+        MedianBlurのカーネルサイズ（奇数）
     """
+
     # 出力先ディレクトリ作成
     os.makedirs(output_dir, exist_ok=True)
 
-    # フォルダ内のPNGファイル一覧取得
-    files = glob.glob(os.path.join(input_dir, "*.jpg"))
+    # フォルダ内のPNG/JPGファイル一覧取得
+    files = glob.glob(os.path.join(input_dir, "*.png")) + glob.glob(os.path.join(input_dir, "*.jpg"))
     if not files:
-        raise FileNotFoundError(f"{input_dir} に .jpg ファイルが見つかりません。")
+        raise FileNotFoundError(f"{input_dir} に PNG/JPG ファイルが見つかりません。")
 
-    # 回転角度と倍率の組み合わせ
-    angles = [10.0, 0.0, -10.0]
-    scales = [1.0]
+    # 回転角度、倍率、縦方向の傾斜の組み合わせ
+    angles = [0]        # 回転
+    scales = [1.0]     # 拡大縮小
+    skew_y_factors = [1.0, 1.25, 1.5, 2.0, 2.5]  # 縦方向の傾斜
+    skew_x = 1.0  # 横方向は固定
 
     total_count = 0
     for file_path in files:
@@ -44,29 +47,33 @@ def generate_variations_from_folder(input_dir, output_dir="output", ksize=3):
 
         count = 0
         for scale in scales:
-            # 拡大縮小
-            new_w = int(gray.shape[1] * scale)
-            new_h = int(gray.shape[0] * scale)
-            resized = cv2.resize(gray, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
+            # 基本リサイズ
+            base_w = int(gray.shape[1] * scale)
+            base_h = int(gray.shape[0] * scale)
+            resized = cv2.resize(gray, (base_w, base_h), interpolation=cv2.INTER_LINEAR)
 
-            h, w = resized.shape
-            center = (w // 2, h // 2)
+            for skew_y in skew_y_factors:
+                # 縦方向の傾斜
+                skewed_h = int(resized.shape[0] * skew_y)
+                skewed_w = resized.shape[1]  # 横方向は固定
+                skewed = cv2.resize(resized, (skewed_w, skewed_h), interpolation=cv2.INTER_LINEAR)
 
-            for angle in angles:
-                # 回転
-                M = cv2.getRotationMatrix2D(center, angle, 1.0)  # scale=1.0（リサイズ済み）
-                rotated = cv2.warpAffine(resized, M, (w, h), flags=cv2.INTER_LINEAR)
+                center = (skewed_w // 2, skewed_h // 2)
+                for angle in angles:
+                    # 回転
+                    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+                    rotated = cv2.warpAffine(skewed, M, (skewed_w, skewed_h), flags=cv2.INTER_LINEAR)
 
-                # --- MedianBlurでノイズ除去 ---
-                denoised = cv2.medianBlur(rotated, ksize)
+                    # ノイズ除去
+                    denoised = cv2.medianBlur(rotated, ksize)
 
-                # 保存パス
-                out_name = f"{filename}_ang{angle}_scale{scale}.png"
-                out_path = os.path.join(output_dir, out_name)
-                cv2.imwrite(out_path, denoised)
+                    # 保存
+                    out_name = f"{filename}_ang{angle}_scale{scale}_sky{skew_y}.png"
+                    out_path = os.path.join(output_dir, out_name)
+                    cv2.imwrite(out_path, denoised)
 
-                count += 1
-                total_count += 1
+                    count += 1
+                    total_count += 1
 
         print(f"{filename}: {count} 枚生成")
 
@@ -74,4 +81,8 @@ def generate_variations_from_folder(input_dir, output_dir="output", ksize=3):
 
 
 # 使用例
-generate_variations_from_folder(r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching", r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching_temprate", ksize=3)
+generate_variations_from_folder(
+    r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching",
+    r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching_temprate",
+    ksize=3
+)

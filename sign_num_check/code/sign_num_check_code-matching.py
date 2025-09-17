@@ -166,6 +166,6 @@ def multi_template_matching(image_folder, template_folder, output_csv="wrong_mat
 
 # 使用例
 multi_template_matching(
-    r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pic_front",
+    r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pic_2",
     r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching_temprate"
 )
