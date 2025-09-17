@@ -21,9 +21,9 @@ def generate_variations_from_folder(input_dir, output_dir="output", ksize=3):
     os.makedirs(output_dir, exist_ok=True)
 
     # フォルダ内のPNGファイル一覧取得
-    files = glob.glob(os.path.join(input_dir, "*.png"))
+    files = glob.glob(os.path.join(input_dir, "*.jpg"))
     if not files:
-        raise FileNotFoundError(f"{input_dir} に .png ファイルが見つかりません。")
+        raise FileNotFoundError(f"{input_dir} に .jpg ファイルが見つかりません。")
 
     # 回転角度と倍率の組み合わせ
     angles = [-10, 0, 10]
@@ -74,4 +74,4 @@ def generate_variations_from_folder(input_dir, output_dir="output", ksize=3):
 
 
 # 使用例
-generate_variations_from_folder("input_folder", "augmented", ksize=3)
+generate_variations_from_folder(r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching", r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching_temprate", ksize=3)
