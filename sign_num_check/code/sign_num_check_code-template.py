@@ -26,8 +26,8 @@ def generate_variations_from_folder(input_dir, output_dir="output", ksize=3):
         raise FileNotFoundError(f"{input_dir} に .jpg ファイルが見つかりません。")
 
     # 回転角度と倍率の組み合わせ
-    angles = [-10, 0, 10]
-    scales = [2.0, 1.0, 0.5]
+    angles = [10.0, 0.0, -10.0]
+    scales = [1.0]
 
     total_count = 0
     for file_path in files:
