@@ -3,7 +3,7 @@ import numpy as np
 import os
 import glob
 
-def generate_variations_from_folder(input_dir, output_dir="output"):
+def generate_variations_from_folder(input_dir, output_dir="output", discard_bad=True):
     # 出力先ディレクトリ作成
     os.makedirs(output_dir, exist_ok=True)
 
@@ -28,19 +28,33 @@ def generate_variations_from_folder(input_dir, output_dir="output"):
 
         # グレースケール化
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        h, w = gray.shape
-        center = (w // 2, h // 2)
 
         count = 0
-        for angle in angles:
-            for scale in scales:
-                # 回転＋拡大縮小
-                M = cv2.getRotationMatrix2D(center, angle, scale)
-                rotated = cv2.warpAffine(gray, M, (w, h), flags=cv2.INTER_LINEAR)
+        for scale in scales:
+            # 拡大縮小
+            new_w = int(gray.shape[1] * scale)
+            new_h = int(gray.shape[0] * scale)
+            resized = cv2.resize(gray, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
+
+            h, w = resized.shape
+            center = (w // 2, h // 2)
+
+            for angle in angles:
+                # 回転
+                M = cv2.getRotationMatrix2D(center, angle, 1.0)  # scale=1.0（すでにリサイズ済み）
+                rotated = cv2.warpAffine(resized, M, (w, h), flags=cv2.INTER_LINEAR)
 
                 # --- ノイズ除去処理 ---
                 blurred = cv2.GaussianBlur(rotated, (5, 5), 0)
                 _, denoised = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+                # 品質チェック（真っ黒／真っ白すぎる画像は破棄）
+                if discard_bad:
+                    white_ratio = np.mean(denoised == 255)
+                    if white_ratio < 0.05 or white_ratio > 0.95:
+                        # 破棄
+                        print(f"破棄: {filename} ang{angle} scale{scale} (白比率={white_ratio:.2f})")
+                        continue
 
                 # 保存パス
                 out_name = f"{filename}_ang{angle}_scale{scale}.png"
@@ -50,7 +64,7 @@ def generate_variations_from_folder(input_dir, output_dir="output"):
                 count += 1
                 total_count += 1
 
-        print(f"{filename}: {count} 枚生成")
+        print(f"{filename}: {count} 枚生成 (破棄除く)")
 
     print(f"合計 {total_count} 枚を {output_dir} に保存しました。")
 
