@@ -27,56 +27,48 @@ def adjust_brightness_contrast(img, contrast=1.2):
     beta = 128 - mean
     return cv2.convertScaleAbs(img, alpha=contrast, beta=beta)
 
-def detect_red_white_circle(img, min_radius=15, min_wh=30):
+def detect_red_sign_candidates(img):
     """
-    赤円＋白円候補を抽出（赤円半径上位3つを返す）
+    赤色領域をマスクして標識候補を抽出する
     """
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    # 赤色検出
-    lower1 = np.array([0, 70, 50])
-    upper1 = np.array([10, 255, 255])
-    lower2 = np.array([170, 70, 50])
-    upper2 = np.array([180, 255, 255])
-    mask1 = cv2.inRange(hsv, lower1, upper1)
-    mask2 = cv2.inRange(hsv, lower2, upper2)
+
+    # 赤色範囲（夜間も考慮）
+    lower_red1 = np.array([0, 60, 20])
+    upper_red1 = np.array([10, 255, 255])
+    lower_red2 = np.array([170, 60, 20])
+    upper_red2 = np.array([180, 255, 255])
+
+    mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+    mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
     red_mask = cv2.bitwise_or(mask1, mask2)
+
+    # ノイズ除去
     red_mask = cv2.medianBlur(red_mask, 5)
 
+    # 輪郭検出
     contours, _ = cv2.findContours(red_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
     candidates = []
-
     for cnt in contours:
-        ((x, y), radius) = cv2.minEnclosingCircle(cnt)
-        if radius < min_radius:
+        if len(cnt) < 5:
             continue
-        x, y, r = int(x), int(y), int(radius)
-        x1 = max(x - r, 0)
-        y1 = max(y - r, 0)
-        x2 = min(x + r, img.shape[1])
-        y2 = min(y + r, img.shape[0])
-        if (x2 - x1) < min_wh or (y2 - y1) < min_wh:
+        area = cv2.contourArea(cnt)
+        if area < 6400:  # 小さいノイズは除去
             continue
 
-        red_region = img[y1:y2, x1:x2]
+        ellipse = cv2.fitEllipse(cnt)
+        (x, y), (MA, ma), angle = ellipse
+        r = max(MA, ma) / 2
+        x1 = max(int(x - r), 0)
+        y1 = max(int(y - r), 0)
+        x2 = min(int(x + r), img.shape[1])
+        y2 = min(int(y + r), img.shape[0])
 
-        # 内側白円の存在確認
-        hsv_region = cv2.cvtColor(red_region, cv2.COLOR_BGR2HSV)
-        lower_white = np.array([0, 0, 180])
-        upper_white = np.array([180, 40, 255])
-        white_mask = cv2.inRange(hsv_region, lower_white, upper_white)
-        white_ratio = cv2.countNonZero(white_mask) / (white_mask.shape[0] * white_mask.shape[1])
+        candidate = img[y1:y2, x1:x2]
+        candidates.append(candidate)
 
-        candidates.append((r, white_ratio, red_region))
-
-    if not candidates:
-        return []
-
-    # 赤円半径で降順ソート
-    candidates.sort(key=lambda x: x[0], reverse=True)
-    top3 = candidates[:3]
-
-    # 上位3つの赤円候補すべてを返す
-    return [c[2] for c in top3]
+    return candidates
 
 def multi_template_matching(image_folder, template_folder, output_csv="wrong_matches_alldata.csv"):
     # テンプレート読み込み
@@ -89,7 +81,7 @@ def multi_template_matching(image_folder, template_folder, output_csv="wrong_mat
         templates.append((t_path, t_img))
         print(f"テンプレート: {os.path.basename(t_path)} サイズ={t_img.shape}")
 
-    # シャープ化フィルタ（エッジ強調用）
+    # シャープ化フィルタ
     kernel_sharpen = np.array([[0, -1, 0],
                                [-1, 5, -1],
                                [0, -1, 0]])
@@ -107,9 +99,9 @@ def multi_template_matching(image_folder, template_folder, output_csv="wrong_mat
             continue
 
         adjusted = adjust_brightness_contrast(orig)
-        candidate_regions = detect_red_white_circle(adjusted, min_radius=15, min_wh=30)
+        candidate_regions = detect_red_sign_candidates(adjusted)
         if not candidate_regions:
-            print(f"{os.path.basename(img_path)}: 赤円＋白円が検出されませんでした")
+            print(f"{os.path.basename(img_path)}: 赤領域が検出されませんでした")
             continue
 
         best_score = -1
@@ -118,18 +110,17 @@ def multi_template_matching(image_folder, template_folder, output_csv="wrong_mat
         best_size = None
         best_region = None
 
-        # 上位3つすべての赤円候補領域でテンプレートマッチング
+        # 赤領域候補ごとにテンプレートマッチング
         for idx, region in enumerate(candidate_regions):
-            # --- エッジ強調 ---
             gray_region = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
             gray_region = cv2.filter2D(gray_region, -1, kernel_sharpen)
 
             rh, rw = gray_region.shape[:2]
-            for t_path, template in templates:
-                # テンプレートを候補領域サイズにリサイズ
-                resized_template = cv2.resize(template, (rw, rh))
-                th, tw = resized_template.shape[:2]
+            if rh < 20 or rw < 20:  # 小さすぎる候補は除外
+                continue
 
+            for t_path, template in templates:
+                resized_template = cv2.resize(template, (rw, rh))
                 result = cv2.matchTemplate(gray_region, resized_template, cv2.TM_CCOEFF_NORMED)
                 _, max_val, _, max_loc = cv2.minMaxLoc(result)
 
@@ -139,7 +130,7 @@ def multi_template_matching(image_folder, template_folder, output_csv="wrong_mat
                     best_score = max_val
                     best_template_name = os.path.basename(t_path)
                     best_loc = max_loc
-                    best_size = (tw, th)
+                    best_size = (rw, rh)
                     best_region = region
 
         if best_template_name is None:
@@ -183,9 +174,8 @@ def multi_template_matching(image_folder, template_folder, output_csv="wrong_mat
     print(f"\n総画像数: {total}, 正解数: {correct}, 正答率: {accuracy:.2f}%")
     print(f"誤判定データは {output_csv} に保存されました。")
 
-
 # 使用例
 multi_template_matching(
     r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pic_2",
-    r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching_temprate"
+    r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching_number_temprate"
 )

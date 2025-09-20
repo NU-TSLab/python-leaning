@@ -18,9 +18,9 @@ def generate_variations_from_folder(input_dir, output_dir="output", ksize=3):
         raise FileNotFoundError(f"{input_dir} に PNG/JPG ファイルが見つかりません。")
 
     # 回転角度、倍率、縦方向の傾斜の組み合わせ
-    angles = [-20, 0, 20]        # 回転
+    angles = [0]        # 回転
     scales = [1.0]               # 拡大縮小
-    skew_y_factors = [1.0, 1.25, 1.5, 2.0, 2.5]  # 縦方向の傾斜
+    skew_y_factors = [1.0, 1.25, 1.5, 2.0]  # 縦方向の傾斜
     skew_x = 1.0  # 横方向は固定
 
     # シャープ化フィルタ
@@ -81,7 +81,7 @@ def generate_variations_from_folder(input_dir, output_dir="output", ksize=3):
 
 # 使用例
 generate_variations_from_folder(
-    r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching",
-    r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching_temprate",
+    r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching_number_temprate_base",
+    r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pattern_matching_number_temprate",
     ksize=3
 )
