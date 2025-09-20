@@ -6,16 +6,7 @@ import glob
 def generate_variations_from_folder(input_dir, output_dir="output", ksize=3):
     """
     指定フォルダ内のPNG/JPG画像に対して、回転・拡大縮小・縦方向の傾斜を行い、
-    グレースケール化＋MedianBlurでノイズ除去した画像を保存する。
-
-    Parameters
-    ----------
-    input_dir : str
-        入力画像フォルダ
-    output_dir : str
-        出力先フォルダ
-    ksize : int
-        MedianBlurのカーネルサイズ（奇数）
+    グレースケール化＋MedianBlur＋エッジ強調でノイズ除去した画像を保存する。
     """
 
     # 出力先ディレクトリ作成
@@ -27,10 +18,15 @@ def generate_variations_from_folder(input_dir, output_dir="output", ksize=3):
         raise FileNotFoundError(f"{input_dir} に PNG/JPG ファイルが見つかりません。")
 
     # 回転角度、倍率、縦方向の傾斜の組み合わせ
-    angles = [0]        # 回転
-    scales = [1.0]     # 拡大縮小
+    angles = [-20, 0, 20]        # 回転
+    scales = [1.0]               # 拡大縮小
     skew_y_factors = [1.0, 1.25, 1.5, 2.0, 2.5]  # 縦方向の傾斜
     skew_x = 1.0  # 横方向は固定
+
+    # シャープ化フィルタ
+    kernel_sharpen = np.array([[0, -1, 0],
+                               [-1, 5, -1],
+                               [0, -1, 0]])
 
     total_count = 0
     for file_path in files:
@@ -67,10 +63,13 @@ def generate_variations_from_folder(input_dir, output_dir="output", ksize=3):
                     # ノイズ除去
                     denoised = cv2.medianBlur(rotated, ksize)
 
+                    # --- エッジ強調（シャープ化） ---
+                    sharpened = cv2.filter2D(denoised, -1, kernel_sharpen)
+
                     # 保存
                     out_name = f"{filename}_ang{angle}_scale{scale}_sky{skew_y}.png"
                     out_path = os.path.join(output_dir, out_name)
-                    cv2.imwrite(out_path, denoised)
+                    cv2.imwrite(out_path, sharpened)
 
                     count += 1
                     total_count += 1

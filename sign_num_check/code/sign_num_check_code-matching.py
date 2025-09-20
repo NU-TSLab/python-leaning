@@ -27,9 +27,9 @@ def adjust_brightness_contrast(img, contrast=1.2):
     beta = 128 - mean
     return cv2.convertScaleAbs(img, alpha=contrast, beta=beta)
 
-def detect_red_white_circle(img):
+def detect_red_white_circle(img, min_radius=15, min_wh=30):
     """
-    赤円＋白円領域を抽出
+    赤円＋白円候補を抽出（赤円半径上位3つを返す）
     """
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     # 赤色検出
@@ -43,17 +43,20 @@ def detect_red_white_circle(img):
     red_mask = cv2.medianBlur(red_mask, 5)
 
     contours, _ = cv2.findContours(red_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    candidate_regions = []
+    candidates = []
 
     for cnt in contours:
         ((x, y), radius) = cv2.minEnclosingCircle(cnt)
-        if radius < 5:
+        if radius < min_radius:
             continue
         x, y, r = int(x), int(y), int(radius)
         x1 = max(x - r, 0)
         y1 = max(y - r, 0)
         x2 = min(x + r, img.shape[1])
         y2 = min(y + r, img.shape[0])
+        if (x2 - x1) < min_wh or (y2 - y1) < min_wh:
+            continue
+
         red_region = img[y1:y2, x1:x2]
 
         # 内側白円の存在確認
@@ -62,12 +65,20 @@ def detect_red_white_circle(img):
         upper_white = np.array([180, 40, 255])
         white_mask = cv2.inRange(hsv_region, lower_white, upper_white)
         white_ratio = cv2.countNonZero(white_mask) / (white_mask.shape[0] * white_mask.shape[1])
-        if white_ratio > 0.2:
-            candidate_regions.append(red_region)
 
-    return candidate_regions
+        candidates.append((r, white_ratio, red_region))
 
-def multi_template_matching(image_folder, template_folder, output_csv="wrong_matches.csv"):
+    if not candidates:
+        return []
+
+    # 赤円半径で降順ソート
+    candidates.sort(key=lambda x: x[0], reverse=True)
+    top3 = candidates[:3]
+
+    # 上位3つの赤円候補すべてを返す
+    return [c[2] for c in top3]
+
+def multi_template_matching(image_folder, template_folder, output_csv="wrong_matches_alldata.csv"):
     # テンプレート読み込み
     template_files = glob.glob(os.path.join(template_folder, "*.png"))
     templates = []
@@ -77,6 +88,11 @@ def multi_template_matching(image_folder, template_folder, output_csv="wrong_mat
             continue
         templates.append((t_path, t_img))
         print(f"テンプレート: {os.path.basename(t_path)} サイズ={t_img.shape}")
+
+    # シャープ化フィルタ（エッジ強調用）
+    kernel_sharpen = np.array([[0, -1, 0],
+                               [-1, 5, -1],
+                               [0, -1, 0]])
 
     # 対象画像
     image_files = glob.glob(os.path.join(image_folder, "*.jpg"))
@@ -91,7 +107,7 @@ def multi_template_matching(image_folder, template_folder, output_csv="wrong_mat
             continue
 
         adjusted = adjust_brightness_contrast(orig)
-        candidate_regions = detect_red_white_circle(adjusted)
+        candidate_regions = detect_red_white_circle(adjusted, min_radius=15, min_wh=30)
         if not candidate_regions:
             print(f"{os.path.basename(img_path)}: 赤円＋白円が検出されませんでした")
             continue
@@ -102,9 +118,12 @@ def multi_template_matching(image_folder, template_folder, output_csv="wrong_mat
         best_size = None
         best_region = None
 
-        # 赤円候補領域ごとにテンプレートマッチング
+        # 上位3つすべての赤円候補領域でテンプレートマッチング
         for idx, region in enumerate(candidate_regions):
+            # --- エッジ強調 ---
             gray_region = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
+            gray_region = cv2.filter2D(gray_region, -1, kernel_sharpen)
+
             rh, rw = gray_region.shape[:2]
             for t_path, template in templates:
                 # テンプレートを候補領域サイズにリサイズ
@@ -163,6 +182,7 @@ def multi_template_matching(image_folder, template_folder, output_csv="wrong_mat
     accuracy = (correct / total) * 100 if total > 0 else 0
     print(f"\n総画像数: {total}, 正解数: {correct}, 正答率: {accuracy:.2f}%")
     print(f"誤判定データは {output_csv} に保存されました。")
+
 
 # 使用例
 multi_template_matching(
