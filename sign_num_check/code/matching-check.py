@@ -3,6 +3,7 @@ import numpy as np
 import glob
 import os
 from PIL import Image, ImageOps
+import csv
 
 def load_image_exif_corrected(path):
     img = Image.open(path)
@@ -17,25 +18,18 @@ def resize_for_display(img, max_size=600):
     return img
 
 def detect_red_sign_candidates(img):
-    """
-    赤色領域をマスクして標識候補を抽出する
-    """
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    # --- 夜間も考慮した赤色範囲 ---
-    lower_red1 = np.array([0, 60, 20])
+    lower_red1 = np.array([0, 60, 0])
     upper_red1 = np.array([10, 255, 255])
-    lower_red2 = np.array([170, 60, 20])
+    lower_red2 = np.array([170, 60, 0])
     upper_red2 = np.array([180, 255, 255])
 
     mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
     mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
     red_mask = cv2.bitwise_or(mask1, mask2)
-
-    # ノイズ除去
     red_mask = cv2.medianBlur(red_mask, 5)
 
-    # 輪郭検出
     contours, _ = cv2.findContours(red_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     candidates = []
@@ -45,7 +39,7 @@ def detect_red_sign_candidates(img):
         if len(cnt) < 5:
             continue
         area = cv2.contourArea(cnt)
-        if area < 6400:  # 小さいノイズは除去
+        if area < 3200:
             continue
 
         ellipse = cv2.fitEllipse(cnt)
@@ -61,22 +55,21 @@ def detect_red_sign_candidates(img):
         candidate = img[y1:y2, x1:x2]
         candidates.append(candidate)
 
-    return candidates, ellipses, red_mask
-
+    return candidates, ellipses
 
 # --- メイン処理 ---
 image_folder = r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pic"
-mask_save_folder = r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sign_num_check\pic_template_mask"
-
-os.makedirs(mask_save_folder, exist_ok=True)
+csv_path = "red_sign_labels.csv"
+os.makedirs(image_folder, exist_ok=True)
 
 image_files = glob.glob(f"{image_folder}/*.jpg")
+results = []
 
 for img_path in image_files:
     img = load_image_exif_corrected(img_path)
     display_img = resize_for_display(img)
 
-    candidate_regions, ellipses, red_mask = detect_red_sign_candidates(img)
+    _, ellipses = detect_red_sign_candidates(img)
 
     # 検出結果を表示
     vis = display_img.copy()
@@ -94,16 +87,23 @@ for img_path in image_files:
         )
 
     cv2.imshow("Detected Candidates", vis)
-    cv2.waitKey(0)
 
-    # マスクも表示
-    mask_display = resize_for_display(red_mask)
-    cv2.imshow("Red Mask", mask_display)
-    cv2.waitKey(0)
-
-    # マスク保存（二値化画像）
-    base_name = os.path.splitext(os.path.basename(img_path))[0]
-    save_path = os.path.join(mask_save_folder, f"{base_name}_mask.png")
-    cv2.imwrite(save_path, red_mask)
+    # キーボード入力でラベル付け
+    key = cv2.waitKey(0)
+    if key in (ord('y'), ord('Y')):
+        results.append((os.path.basename(img_path), 'y'))
+    else:
+        results.append((os.path.basename(img_path), 'n'))
 
 cv2.destroyAllWindows()
+
+# CSVに保存
+with open(csv_path, "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerow(["filename", "label"])
+    writer.writerows(results)
+
+# 正答率計算
+y_count = sum(1 for _, label in results if label == 'y')
+accuracy = y_count / len(results) if results else 0
+print(f"正答率: {accuracy:.2%} ({y_count}/{len(results)})")
