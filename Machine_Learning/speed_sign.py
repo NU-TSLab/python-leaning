@@ -156,10 +156,9 @@ def match_figure(kp_roi, des_roi, img_roi, templates, threshold, frame_c=0, box_
         if des_t is None or des_roi is None:
             continue
 
-        # crossCheckを有効化して1対1マッチに限定
         bf_strict = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
         matches = bf_strict.match(des_t, des_roi)
-        matches = [m for m in matches if m.distance < 60]  # 弱マッチ除外
+        matches = [m for m in matches if m.distance < 60]
         matches = sorted(matches, key=lambda x: x.distance)
 
         print(f"[{label}] match数 = {len(matches)}")
@@ -179,7 +178,6 @@ def match_figure(kp_roi, des_roi, img_roi, templates, threshold, frame_c=0, box_
         if score > best_score:
             best_label = label
             best_score = score
-        # 可視化（安全）
         try:
             draw_params = dict(
                 matchColor=(0,255,0),
@@ -204,12 +202,16 @@ def clean_dir(dir):
             os.remove(p)
 
 def speed_judge(latest_speed):
+    global latest_judge_speed
     speed_label = {}
     for label in TEMP_LABEL:
         speed_label[label] = 0
     for i in range(JUDGE_FRAMES-1):
-        latest_judge_speed[i] = latest_judge_speed[i+1]
-    latest_judge_speed[JUDGE_FRAMES-1] = latest_speed
+        latest_judge_speed[JUDGE_FRAMES-i-1] = latest_judge_speed[JUDGE_FRAMES-i-2]
+    latest_judge_speed[0] = latest_speed
+
+    print(f"latest_judge_speed = {latest_judge_speed}")
+
     for i in range(JUDGE_FRAMES):
         if latest_judge_speed[i] == None:
             continue
@@ -238,7 +240,7 @@ def main():
         templates_img[label] = img
     
     frame_count = 0
-    
+    global latest_judge_speed
     judged_speed = None
     speed_temp = None
     none_count = 0
@@ -290,16 +292,18 @@ def main():
 
         if not roi_exist:
             judged_speed = None
+            speed_judge(None)
         if judged_speed == None:
             none_count += 1
             if none_count <= DISPLAY_FRAMES:
-                text = f"{speed_temp}km/h"
-                (tw, th), baseline = cv2.getTextSize(text, FONT, OUTPUT_SPEED_SCALE, OUTPUT_SPEED_THICKNESS)
-                x = (w - tw) // 2
-                y = h - OUTPUT_SPEED_MARGIN
-                cv2.putText(frame, text, (x, y), FONT, OUTPUT_SPEED_SCALE, GREEN, 2, cv2.LINE_AA)
+                if speed_temp is not None:
+                    text = f"{speed_temp}km/h"
+                    (tw, th), baseline = cv2.getTextSize(text, FONT, OUTPUT_SPEED_SCALE, OUTPUT_SPEED_THICKNESS)
+                    x = (w - tw) // 2
+                    y = h - OUTPUT_SPEED_MARGIN
+                    cv2.putText(frame, text, (x, y), FONT, OUTPUT_SPEED_SCALE, GREEN, 2, cv2.LINE_AA)
             else:
-                latest_judge_speed = [None for i in range(JUDGE_FRAMES)]
+                speed_temp = None
         else:
             text = f"{judged_speed}km/h"
             (tw, th), baseline = cv2.getTextSize(text, FONT, OUTPUT_SPEED_SCALE, OUTPUT_SPEED_THICKNESS)
