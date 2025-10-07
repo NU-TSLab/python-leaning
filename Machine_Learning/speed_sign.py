@@ -2,6 +2,7 @@ from ultralytics import YOLO
 import cv2
 import numpy as np
 import os
+import matplotlib.pyplot as plt
 
 """---------------YOLO---------------"""
 MODEL_PATH = r"C:/python-leaning/Machine_Learning/runs/exp_cpu_strong4/weights/best.pt"
@@ -46,15 +47,92 @@ DISPLAY_FRAMES = 7
 CUT_FRAME = 1
 MAX_FRAMES = 17000
 TEMP_LABEL = [20, 30, 40, 50, 60, 70, 80, 90]
+SOURCE_MODE = "video"  
+VIDEO_PATH = r"C:/python-leaning/Machine_Learning/conv/IMG_0478.MOV"
 global img2gamma, img2sigmoid_1, img2sigmoid_2
 
 akaze = cv2.AKAZE_create(threshold=FIND_KEYPOINTS_THRESHOLD, nOctaves=OCTAVES, nOctaveLayers=OCTAVELAYERS)
 bf = cv2.BFMatcher(cv2.NORM_HAMMING)
 
 templates_img = {}
+speed_label = {}
 latest_judge_speed = [None for i in range(JUDGE_FRAMES)]
 
-  
+def frame_generator():
+    """カメラまたは動画からフレームを逐次取得"""
+    if SOURCE_MODE == "camera":
+        cap = cv2.VideoCapture(0)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        print("🎥 Webカメラモード開始")
+    elif SOURCE_MODE == "video":
+        cap = cv2.VideoCapture(VIDEO_PATH)
+        if not cap.isOpened():
+            raise RuntimeError("動画が開けませんでした。VIDEO_PATHを確認してください。")
+        print(f"🎞 動画モード開始: {VIDEO_PATH}")
+    else:
+        raise ValueError("SOURCE_MODE は 'camera' または 'video' を指定してください。")
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("🔚 フレーム取得終了")
+            break
+        yield frame
+
+    cap.release()
+
+def show_speed_graph(pltspeed=None):
+    global speed_label
+
+    plt.ion()
+    plt.clf()
+
+    bars = plt.bar(
+        speed_label.keys(),
+        speed_label.values(),
+        color="limegreen",
+        width=2.5,
+        linewidth=1.0,
+        edgecolor="black"
+    )
+
+    plt.ylim(0, JUDGE_FRAMES)
+    plt.xlabel("Speed (km/h)")
+    plt.ylabel("Vote Count")
+    plt.title(f"Last {JUDGE_FRAMES}:")
+
+    # --- 各棒の中に数値を表示 ---
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(
+            bar.get_x() + bar.get_width()/2,  # x位置（中央）
+            height/2,                         # y位置（中央あたり）
+            f"{int(height)}",                 # 表示する文字
+            ha='center', va='center',
+            fontsize=14, color="black", weight='bold'
+        )
+
+    if pltspeed is not None:
+        plt.text(
+            0.5, 0.92,                       # 軸比で位置指定（中央上）
+            f"Output: {pltspeed} km/h",
+            ha='center', va='center',
+            transform=plt.gca().transAxes,
+            fontsize=16, color="orange", weight='bold'
+        )
+    else:
+        plt.text(
+            0.5, 0.92,                       # 軸比で位置指定（中央上）
+            f"Output: None",
+            ha='center', va='center',
+            transform=plt.gca().transAxes,
+            fontsize=16, color="gray", weight='bold'
+        )
+
+    plt.tight_layout()
+    plt.pause(0.001)
+
 def expand_box(xyxy, w, h, ratio=0.10, p=1):
     x1,y1,x2,y2 = map(int, xyxy)
     bw, bh = int((x2-x1) * p), y2-y1
@@ -202,8 +280,7 @@ def clean_dir(dir):
             os.remove(p)
 
 def speed_judge(latest_speed):
-    global latest_judge_speed
-    speed_label = {}
+    global latest_judge_speed, speed_label
     for label in TEMP_LABEL:
         speed_label[label] = 0
     for i in range(JUDGE_FRAMES-1):
@@ -245,16 +322,7 @@ def main():
     speed_temp = None
     none_count = 0
     frame = []
-    while True:
-        try:
-            frame = cv2.imread(f"C:/python-leaning/Machine_Learning/conv/frames/{frame_count:06d}.png")
-        except:
-            if frame_count > MAX_FRAMES:
-                break
-
-            frame_count += 1
-            continue
-
+    for frame in frame_generator():
         h, w = frame.shape[:2]
         frame_count += 1
         if not frame_count % CUT_FRAME == 0:
@@ -289,7 +357,7 @@ def main():
                 cv2.putText(frame, f"{match_label}km/h", (x1, max(0,y1-ACTUAL_VALUE_MARGIN)),
                             FONT, ACTUAL_VALUE_SCALE, GREEN, ACTUAL_VALUE_THICKNESS)
                 print(f"{match_label}km/h")
-
+        pltspeed = None
         if not roi_exist:
             judged_speed = None
             speed_judge(None)
@@ -297,6 +365,7 @@ def main():
             none_count += 1
             if none_count <= DISPLAY_FRAMES:
                 if speed_temp is not None:
+                    pltspeed = speed_temp
                     text = f"{speed_temp}km/h"
                     (tw, th), baseline = cv2.getTextSize(text, FONT, OUTPUT_SPEED_SCALE, OUTPUT_SPEED_THICKNESS)
                     x = (w - tw) // 2
@@ -305,6 +374,7 @@ def main():
             else:
                 speed_temp = None
         else:
+            pltspeed = judged_speed
             text = f"{judged_speed}km/h"
             (tw, th), baseline = cv2.getTextSize(text, FONT, OUTPUT_SPEED_SCALE, OUTPUT_SPEED_THICKNESS)
             x = (w - tw) // 2
@@ -316,8 +386,13 @@ def main():
         cv2.namedWindow("speed-sign-detect", cv2.WINDOW_NORMAL)
         cv2.imshow("speed-sign-detect", frame)
         cv2.resizeWindow("speed-sign-detect", 540, 960)
+
+        show_speed_graph(pltspeed)
+
         if cv2.waitKey(1) & 0xFF == 27:
             break
+
+        
 
     cv2.destroyAllWindows()
 
