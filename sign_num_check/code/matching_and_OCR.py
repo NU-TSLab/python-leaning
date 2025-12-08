@@ -14,11 +14,13 @@ TEMPLATE_FOLDER = r"C:\Users\csfu2\Documents\Python_git_study\python-leaning\sig
 # OCRリーダー
 reader = easyocr.Reader(['en'], gpu=True)   # GPU不要なら gpu=False
 
-# テンプレート読み込み（1桁用）
+# テンプレート読み込み（グラデーション残りのグレースケール前提）
 templates = {}
-for file_path in glob.glob(os.path.join(TEMPLATE_FOLDER, "*.jpg")):
+for file_path in glob.glob(os.path.join(TEMPLATE_FOLDER, "*.png")):
     name = os.path.splitext(os.path.basename(file_path))[0]
     img = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
+    if img is None:
+        continue
     templates[name] = img
 
 # ==== 画像前処理 ====
@@ -82,77 +84,54 @@ def ocr_on_region(region):
     return " ".join(filtered)
 
 # ==== テンプレートマッチング（2桁対応） ====
-def template_match_two_digits(region, show_crop=True):
-    """
-    1桁テンプレートでスライディングマッチングを行い、2桁数字を判定
-    デバッグ用に矩形・スコアを表示
-    """
+def template_match_two_digits(region, show_result=True):
+    # HSVで青文字を強調
+    hsv = cv2.cvtColor(region, cv2.COLOR_BGR2HSV)
+    lower_blue = np.array([100, 100, 30])
+    upper_blue = np.array([130, 255, 255])
+    mask = cv2.inRange(hsv, lower_blue, upper_blue)
+
+    # 青文字部分のみ残す
     gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
-    h, w = gray.shape
+    gray[mask == 0] = 255
 
-    # 中心領域 縦3/7 × 横5/7
-    cx, cy = w // 2, h // 2
-    rh, rw = int(h * 5 / 7 / 2), int(w * 3 / 7 / 2)
-    x1, y1 = cx - rw, cy - rh
-    x2, y2 = cx + rw, cy + rh
-    cropped = gray[y1:y2, x1:x2].copy()
+    # 二値化＋ノイズ除去
+    _, bw = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    bw = cv2.morphologyEx(bw, cv2.MORPH_OPEN, np.ones((3,3), np.uint8))
 
-    if show_crop:
-        display = region.copy()
-        cv2.rectangle(display, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        scale = 600 / display.shape[1]
-        cv2.imshow("3x5/7 Crop Area", cv2.resize(display, (0, 0), fx=scale, fy=scale))
+    h, w = bw.shape
+    mid = w // 2
+    left_part = bw[:, :mid]
+    right_part = bw[:, mid:]
 
-    threshold = 0.02
-    detected_digits = []
-    positions = []
-    search_region = cropped.copy()
-
-    while len(detected_digits) < 2:
-        best_score = 0
+    def match_digit(part, side="left"):
+        best_score = -1
         best_name = None
-        best_pos = None
-
         for name, tmpl in templates.items():
-            res = cv2.matchTemplate(search_region, tmpl, cv2.TM_CCOEFF_NORMED)
-            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+            if part.shape[0] < tmpl.shape[0] or part.shape[1] < tmpl.shape[1]:
+                continue
+            res = cv2.matchTemplate(part, tmpl, cv2.TM_CCOEFF_NORMED)
+            _, max_val, _, _ = cv2.minMaxLoc(res)
             if max_val > best_score:
                 best_score = max_val
                 best_name = name
-                best_pos = max_loc
+        print(f"{side} -> {best_name}, score={best_score:.3f}")
+        return best_name, best_score
 
-        if best_score < threshold:
-            break
+    d1, s1 = match_digit(left_part, "left")
+    d2, s2 = match_digit(right_part, "right")
 
-        detected_digits.append(best_name)
-        positions.append((best_pos, best_name, best_score))
-
-        # 見つけたテンプレートの右側から次を探索
-        tmpl_w = templates[best_name].shape[1]
-        x, y = best_pos
-        search_region = search_region[:, x + tmpl_w:]
-
-    # デバッグ表示：検出矩形とスコア
-    if show_crop:
-        debug_display = cropped.copy()
-        debug_display = cv2.cvtColor(debug_display, cv2.COLOR_GRAY2BGR)
-        offset_x = 0
-        for pos, name, score in positions:
-            px, py = pos
-            w_t, h_t = templates[name].shape[1], templates[name].shape[0]
-            top_left = (px + offset_x, py)
-            bottom_right = (px + offset_x + w_t, py + h_t)
-            cv2.rectangle(debug_display, top_left, bottom_right, (0, 255, 0), 2)
-            cv2.putText(debug_display, f"{name}:{score:.2f}", (top_left[0], top_left[1]-5),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1)
-            offset_x += w_t
-        cv2.imshow("Template Matching Debug", cv2.resize(debug_display, (0,0), fx=2, fy=2))
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-    if len(detected_digits) == 2:
-        combined = "".join(detected_digits)
+    if d1 and d2:
+        combined = d1 + d2
         if combined in VALID_SIGNS:
+            if show_result:
+                display = region.copy()
+                cv2.line(display, (mid, 0), (mid, h), (0, 255, 0), 2)
+                cv2.putText(display, f"{d1}+{d2} ({combined})",
+                            (10, h-10), cv2.FONT_HERSHEY_SIMPLEX,
+                            1.0, (0, 255, 0), 2)
+                scale = 600 / display.shape[1]
+                cv2.imshow("Template Matching Result", cv2.resize(display, (0, 0), fx=scale, fy=scale))
             return combined
     return None
 
@@ -178,7 +157,7 @@ def process_images(image_folder):
         prediction = None
         used_region = None
 
-        # OCRで判定
+        # OCR
         for region in candidate_regions:
             text = ocr_on_region(region)
             if text:
@@ -186,10 +165,10 @@ def process_images(image_folder):
                 used_region = region
                 break
 
-        # OCRで見つからなければテンプレートマッチング
+        # テンプレートマッチング
         if prediction is None:
             for region in candidate_regions:
-                text = template_match_two_digits(region, show_crop=True)
+                text = template_match_two_digits(region, show_result=True)
                 if text:
                     prediction = text
                     used_region = region
